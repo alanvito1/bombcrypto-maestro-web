@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BombCrypto V2 - Multi-Hero Fusion Web3 Utility</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Ethers.js v6 via high-speed CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-section">
+        <h1>BombCrypto V2 <span>FUSION UTILITY</span></h1>
+      </div>
+      <div class="wallet-section">
+        <div class="wallet-info" id="walletInfo">
+          <div class="wallet-dot"></div>
+          <span class="wallet-address" id="walletAddress">0x0000...0000</span>
+        </div>
+        <button class="btn btn-primary" id="btnConnect">Conectar MetaMask</button>
+      </div>
+    </header>
+
+    <!-- Global Web3 Settings & Status -->
+    <div class="glass-box global-settings" style="margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: center;">
+        
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Rede & Ambiente</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <div class="network-selector" style="flex: 1;">
+              <button class="network-tab active" data-network="bsc" id="tabBSC" style="padding: 0.4rem; font-size: 0.75rem;">BSC</button>
+              <button class="network-tab" data-network="polygon" id="tabPolygon" style="padding: 0.4rem; font-size: 0.75rem;">Polygon</button>
+            </div>
+            <div class="env-selector" style="flex: 1;">
+              <button class="env-tab active" data-env="mainnet" id="tabMainnet" style="padding: 0.4rem; font-size: 0.75rem;">Mainnet</button>
+              <button class="env-tab" data-env="testnet" id="tabTestnet" style="padding: 0.4rem; font-size: 0.75rem;">Testnet</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BHeroToken</label>
+          <input type="text" class="form-input compact" id="addrBHeroToken" value="0x30cc0553f6fa1faf6d7847891b9b36eb559dc618" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+        </div>
+
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BHeroS (Fusão/Mint)</label>
+          <input type="text" class="form-input compact" id="addrBHeroS" value="0x9fb9b7349279266c85c0C9dd264D71d2a4B79AB4" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+        </div>
+
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BCOIN (ERC-20)</label>
+          <input type="text" class="form-input compact" id="addrBCOINToken" value="0x00e1656e45f18ec6747F5a8496Fd39B50b38396D" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+        </div>
+
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BatchTransfer</label>
+          <input type="text" class="form-input compact" id="addrBatchTransfer" value="" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);" placeholder="Contrato Multi-Transferência">
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Configurações Globais</label>
+          <div class="checkbox-container" style="margin-top: 0.2rem;">
+            <input type="checkbox" id="chkAutoProcess" checked>
+            <label for="chkAutoProcess" style="font-size: 0.75rem; color: var(--text-secondary);">Autoclaim requests</label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Workstation Selector Tabs -->
+    <div class="workstation-tabs">
+      <button class="workstation-tab active" data-tab="fuse" id="btnTabFuse">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        💣 Fusão em Massa
+      </button>
+      <button class="workstation-tab" data-tab="transfer" id="btnTabTransfer">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M17 3H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12H9v-2h6v2zm0-4H9V9h6v2z"/></svg>
+        🔒 Transferência em Lote
+      </button>
+      <button class="workstation-tab" data-tab="mint" id="btnTabMint">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2v-6h2v6z"/></svg>
+        ✨ Reivindicar & Mint
+      </button>
+    </div>
+
+    <!-- Workstation: FUSE -->
+    <div class="workstation-content active" id="contentWorkstationFuse">
+      
+      <!-- Coluna Esquerda: Senspark Filters Sidebar -->
+      <aside class="senspark-filters-sidebar">
+        <h3 class="sidebar-title">Filtros (BHero)</h3>
+        
+        <div class="filter-group">
+          <label class="slot-label">Hero Type</label>
+          <select class="form-select senspark-hero-type" id="fuseHeroType">
+            <option value="all" selected>All</option>
+            <option value="normal">Normal</option>
+            <option value="heros">HeroS</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Rarity</label>
+          <div class="rarity-checklist" id="fuseRarities">
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="0"> <span class="badge-rarity" style="color: #8fa0c4;">Common</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="1"> <span class="badge-rarity" style="color: #0099ff;">Rare</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="2"> <span class="badge-rarity" style="color: #00ffd8;">Super Rare</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="3"> <span class="badge-rarity" style="color: #ffaa00;">Epic</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="4"> <span class="badge-rarity" style="color: #ff3300;">Legend</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="5"> <span class="badge-rarity" style="color: #ffe600;">SP Legend</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="6"> <span class="badge-rarity" style="color: #ff00ff;">Mega</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="7"> <span class="badge-rarity" style="color: #d100d1;">Super Mega</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="8"> <span class="badge-rarity" style="color: #ff0055;">Mystic</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="9"> <span class="badge-rarity" style="color: #b3003b;">Super Mystic</span></label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Level Range</label>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <input type="number" class="form-input compact stat-lvl-min" id="fuseLvlMin" min="1" max="5" value="1" style="text-align: center; font-size: 0.75rem;">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">to</span>
+            <input type="number" class="form-input compact stat-lvl-max" id="fuseLvlMax" min="1" max="5" value="5" style="text-align: center; font-size: 0.75rem;">
+          </div>
+        </div>
+
+        <div class="filter-group stats-group">
+          <label class="slot-label">Stats</label>
+          <div class="stat-input-row"><span>Power >=</span><input type="number" class="form-input compact stat-power" id="fusePower" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Speed >=</span><input type="number" class="form-input compact stat-speed" id="fuseSpeed" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Stamina >=</span><input type="number" class="form-input compact stat-stamina" id="fuseStamina" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Bomb num >=</span><input type="number" class="form-input compact stat-bomb" id="fuseBomb" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Range >=</span><input type="number" class="form-input compact stat-range" id="fuseRange" min="0" max="30" placeholder="0"></div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Ability</label>
+          <div class="ability-icon-grid" id="fuseAbilityGrid">
+            <button class="ability-icon-btn" data-skill="1" title="Battery (Regen)"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 20H8v-2h8v2zm0-13v9H8V7h8zm-1-3h-2V2h-2v2H9v1h6V4z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="2" title="Walk Blocks"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="3" title="Walk Bombs"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="4" title="Teleport"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 11H3V9h18v2zm0 4H3v-2h18v2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="5" title="Bomb Range +1"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 22h20L12 2zm0 6l6 10H6l6-10z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="6" title="Stamina +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm-1-15h2v6h-2V7zm0 8h2v2h-2v-2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="7" title="Speed +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 10.2l.6 2.2 2.8-1.3L12 15v7h2v-8.2l-1.9-2.3 1.2-2.9 2.1 2.2V15h2v-5l-2.4-2.5-.5-2.2c-.3-1-1.3-1.8-2.4-1.8H9c-1.1 0-2 .9-2 2v3h2v-3h1.8l-1 4.2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="8" title="Bomb Power +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label" for="searchFuseHeroId">Buscar por ID</label>
+          <input type="text" class="form-input" id="searchFuseHeroId" placeholder="Ex: 4829">
+        </div>
+
+      </aside>
+
+      <!-- Coluna Direita: Dashboard + Grid -->
+      <main class="workstation-main">
+        
+        <!-- Dashboard Fusão em Massa -->
+        <div class="glass-box" style="margin-bottom: 1.5rem;">
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0;">Fusão em Massa (100% Sucesso)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                O sistema queima lotes de 4 heróis da mesma raridade automaticamente para fusão 100% garantida.
+              </p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 320px;">
+              <div style="flex: 1;">
+                <label class="slot-label" style="font-size: 0.7rem; margin-bottom: 0.2rem;">Estratégia de Queima</label>
+                <select class="form-select compact" id="massFuseStrategy" style="padding: 0.35rem 0.5rem; font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                  <option value="lowest" selected>Menores Atributos Primeiro</option>
+                  <option value="highest">Maiores Atributos Primeiro</option>
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <label class="slot-label" style="font-size: 0.7rem; margin-bottom: 0.2rem;">Raridade de Origem</label>
+                <select class="form-select compact" id="massFuseRarity" style="padding: 0.35rem 0.5rem; font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                  <option value="0" selected>Comum (Common)</option>
+                  <option value="1">Raro (Rare)</option>
+                  <option value="2">Super Raro (Super Rare)</option>
+                  <option value="3">Épico (Epic)</option>
+                  <option value="4">Lendário (Legend)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic summary calculations -->
+          <div class="mass-stats-container" style="margin-bottom: 1rem;">
+            <div class="mass-stat-card cyan">
+              <span class="mass-stat-label">Total Elegíveis</span>
+              <span class="mass-stat-value" id="massTotalEligible">0</span>
+            </div>
+            <div class="mass-stat-card emerald">
+              <span class="mass-stat-label">Fusões Possíveis</span>
+              <span class="mass-stat-value" id="massTotalFusions">0</span>
+            </div>
+            <div class="mass-stat-card crimson">
+              <span class="mass-stat-label">A Queimar (🔥)</span>
+              <span class="mass-stat-value" id="massTotalBurn">0</span>
+            </div>
+            <div class="mass-stat-card amber">
+              <span class="mass-stat-label">Restantes/Sobra</span>
+              <span class="mass-stat-value" id="massTotalRemainder">0</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; background: rgba(4, 8, 20, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 10px;">
+            <div style="font-size: 0.8rem;">
+              <span style="color: var(--text-secondary);">Taxa Total de Gás:</span>
+              <span style="color: var(--accent-cyan); font-family: var(--font-mono); font-weight: 700; margin-left: 0.5rem;" id="massTotalGas">0.0000 BNB ($0.00 USD)</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-primary" id="btnMassFuse" style="padding: 0.5rem 1.5rem;" disabled>Fundir Heróis Selecionados</button>
+              <button class="btn btn-secondary" id="btnClaimPending" style="display: none; padding: 0.5rem 1rem;">Processar Requests</button>
+            </div>
+          </div>
+
+          <!-- Stepper container for batch fusions -->
+          <div class="stepper-container" id="massProgressContainer" style="display: none; margin-top: 1rem;">
+            <div class="stepper-header">
+              <span class="stepper-title" id="stepperTitle">Processando Fusão</span>
+              <span class="stepper-status" id="stepperStatus">0 / 0</span>
+            </div>
+            <div class="stepper-bar-outer">
+              <div class="stepper-bar-inner" id="stepperBarInner" style="width: 0%;"></div>
+            </div>
+            <div class="stepper-message" id="stepperMessage">Aguardando confirmação...</div>
+          </div>
+        </div>
+
+        <!-- Grid de Heróis da Aba de Fusão -->
+        <div class="heroes-grid" id="fuseHeroesGrid">
+          <div class="empty-state">
+            <p>Conecte a MetaMask para carregar seu inventário de heróis para fusão.</p>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Workstation: TRANSFER -->
+    <div class="workstation-content" id="contentWorkstationTransfer">
+      
+      <!-- Coluna Esquerda: Senspark Filters Sidebar -->
+      <aside class="senspark-filters-sidebar">
+        <h3 class="sidebar-title">Filtros (BHero)</h3>
+        
+        <div class="filter-group">
+          <label class="slot-label">Hero Type</label>
+          <select class="form-select senspark-hero-type" id="transferHeroType">
+            <option value="all" selected>All</option>
+            <option value="normal">Normal</option>
+            <option value="heros">HeroS</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Rarity</label>
+          <div class="rarity-checklist" id="transferRarities">
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="0"> <span class="badge-rarity" style="color: #8fa0c4;">Common</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="1"> <span class="badge-rarity" style="color: #0099ff;">Rare</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="2"> <span class="badge-rarity" style="color: #00ffd8;">Super Rare</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="3"> <span class="badge-rarity" style="color: #ffaa00;">Epic</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="4"> <span class="badge-rarity" style="color: #ff3300;">Legend</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="5"> <span class="badge-rarity" style="color: #ffe600;">SP Legend</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="6"> <span class="badge-rarity" style="color: #ff00ff;">Mega</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="7"> <span class="badge-rarity" style="color: #d100d1;">Super Mega</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="8"> <span class="badge-rarity" style="color: #ff0055;">Mystic</span></label>
+            <label class="rarity-checkbox-item"><input type="checkbox" class="rarity-chk" value="9"> <span class="badge-rarity" style="color: #b3003b;">Super Mystic</span></label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Level Range</label>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <input type="number" class="form-input compact stat-lvl-min" id="transferLvlMin" min="1" max="5" value="1" style="text-align: center; font-size: 0.75rem;">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">to</span>
+            <input type="number" class="form-input compact stat-lvl-max" id="transferLvlMax" min="1" max="5" value="5" style="text-align: center; font-size: 0.75rem;">
+          </div>
+        </div>
+
+        <div class="filter-group stats-group">
+          <label class="slot-label">Stats</label>
+          <div class="stat-input-row"><span>Power >=</span><input type="number" class="form-input compact stat-power" id="transferPower" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Speed >=</span><input type="number" class="form-input compact stat-speed" id="transferSpeed" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Stamina >=</span><input type="number" class="form-input compact stat-stamina" id="transferStamina" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Bomb num >=</span><input type="number" class="form-input compact stat-bomb" id="transferBomb" min="0" max="30" placeholder="0"></div>
+          <div class="stat-input-row"><span>Range >=</span><input type="number" class="form-input compact stat-range" id="transferRange" min="0" max="30" placeholder="0"></div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label">Ability</label>
+          <div class="ability-icon-grid" id="transferAbilityGrid">
+            <button class="ability-icon-btn" data-skill="1" title="Battery (Regen)"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 20H8v-2h8v2zm0-13v9H8V7h8zm-1-3h-2V2h-2v2H9v1h6V4z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="2" title="Walk Blocks"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="3" title="Walk Bombs"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="4" title="Teleport"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 11H3V9h18v2zm0 4H3v-2h18v2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="5" title="Bomb Range +1"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 22h20L12 2zm0 6l6 10H6l6-10z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="6" title="Stamina +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm-1-15h2v6h-2V7zm0 8h2v2h-2v-2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="7" title="Speed +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 10.2l.6 2.2 2.8-1.3L12 15v7h2v-8.2l-1.9-2.3 1.2-2.9 2.1 2.2V15h2v-5l-2.4-2.5-.5-2.2c-.3-1-1.3-1.8-2.4-1.8H9c-1.1 0-2 .9-2 2v3h2v-3h1.8l-1 4.2z"/></svg></button>
+            <button class="ability-icon-btn" data-skill="8" title="Bomb Power +2"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="slot-label" for="searchTransferHeroId">Buscar por ID</label>
+          <input type="text" class="form-input" id="searchTransferHeroId" placeholder="Ex: 4829">
+        </div>
+
+      </aside>
+
+      <!-- Coluna Direita: Dashboard + Grid -->
+      <main class="workstation-main">
+        
+        <!-- Dashboard Transferência em Lote -->
+        <div class="glass-box" style="margin-bottom: 1.5rem;">
+          
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0;">Transferência em Lote (Segurança)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                Envie com segurança os heróis selecionados (remanescentes ou específicos) para a carteira de backup de uma só vez.
+              </p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 320px;">
+              <label class="slot-label" style="font-size: 0.75rem; margin-bottom: 0.1rem;">Carteira Segura de Destino</label>
+              <input type="text" class="form-input compact" id="addrTransferDestination" placeholder="0x... (Endereço da carteira de backup)" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0.5rem; margin-bottom: 0.3rem;">
+              <div class="checkbox-container" style="margin-top: 0.2rem;">
+                <input type="checkbox" id="chkUseBatchContract">
+                <label for="chkUseBatchContract" style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: bold; cursor: pointer;">⚡ Transação Única (Batch Contract)</label>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem;">
+            <div class="mass-stats-container" style="flex: 1; grid-template-columns: repeat(2, 1fr); margin-bottom: 0;">
+              <div class="mass-stat-card cyan" style="padding: 0.5rem 0.75rem;">
+                <span class="mass-stat-label" style="font-size: 0.65rem;">Heróis Selecionados</span>
+                <span class="mass-stat-value" id="transferTotalCount" style="font-size: 1.25rem;">0</span>
+              </div>
+              <div class="mass-stat-card amber" style="padding: 0.5rem 0.75rem;">
+                <span class="mass-stat-label" style="font-size: 0.65rem;">Taxa Total de Gás Est.</span>
+                <span class="mass-stat-value" id="transferTotalGas" style="font-size: 1.1rem;">0.0000 BNB</span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; min-width: 250px;">
+              <button class="btn btn-secondary" id="btnSelectNonFused" style="font-size: 0.75rem; padding: 0.35rem 0.5rem;">Selecionar Remanescentes da Fusão</button>
+              <button class="btn btn-secondary" id="btnSelectFilteredTransfer" style="font-size: 0.75rem; padding: 0.35rem 0.5rem; background: rgba(0, 255, 216, 0.1); border-color: rgba(0, 255, 216, 0.3); color: #00ffd8;">Selecionar Filtrados</button>
+              <button class="btn btn-secondary" id="btnClearTransfer" style="font-size: 0.75rem; padding: 0.35rem 0.5rem;">Limpar Seleção</button>
+            </div>
+          </div>
+
+          <div style="background: rgba(4, 8, 20, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 10px; display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" id="btnMassTransfer" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; padding: 0.5rem 2rem;" disabled>Transferir Heróis Selecionados</button>
+          </div>
+
+          <!-- Stepper container for batch transfers -->
+          <div class="stepper-container" id="transferProgressContainer" style="display: none; margin-top: 1rem;">
+            <div class="stepper-header">
+              <span class="stepper-title" id="transferStepperTitle">Processando Envio</span>
+              <span class="stepper-status" id="transferStepperStatus">0 / 0</span>
+            </div>
+            <div class="stepper-bar-outer">
+              <div class="stepper-bar-inner" id="transferStepperBarInner" style="width: 0%; background: linear-gradient(90deg, #00ffd8, #00ff55);"></div>
+            </div>
+            <div class="stepper-message" id="transferStepperMessage">Aguardando confirmação...</div>
+          </div>
+
+        </div>
+
+        <!-- Grid de Heróis da Aba de Transferência -->
+        <div class="heroes-grid" id="transferHeroesGrid">
+          <div class="empty-state">
+            <p>Conecte a MetaMask para carregar seu inventário de heróis para transferência.</p>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Workstation: MINT -->
+    <div class="workstation-content" id="contentWorkstationMint">
+      
+      <!-- Coluna Esquerda: Informações e Status -->
+      <aside class="senspark-filters-sidebar">
+        <h3 class="sidebar-title">Status do Mint</h3>
+        
+        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+          <h4 style="margin: 0 0 0.4rem 0; color: var(--text-primary); font-size: 0.8rem;">Como Funciona?</h4>
+          Quando você compra baús ou realiza fusões no BombCrypto V2, as solicitações de novos heróis ficam registradas de forma segura na blockchain. 
+          <br><br>
+          Esta aba permite que você faça o **mint final** (processamento de requests) para gerar visualmente os heróis e adicioná-los ao seu inventário ativo.
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; margin-top: 1rem;">
+          <h4 style="margin: 0 0 0.4rem 0; color: var(--accent-cyan); font-size: 0.8rem;">Aviso de Gás</h4>
+          Cada transação de Mint consome gás na blockchain para gerar os números aleatórios on-chain do herói. Certifique-se de ter BNB suficiente para pagar as taxas de rede.
+        </div>
+
+      </aside>
+
+      <!-- Coluna Direita: Dashboard de Processamento -->
+      <main class="workstation-main">
+        
+        <div class="mint-dashboard-grid">
+          
+          <!-- Card 1: Solicitar Novos Mints -->
+          <div class="glass-box" style="padding: 2rem 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="text-align: center;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem; animation: pulse-transfer 2s infinite ease-in-out;">💎</div>
+              <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Solicitar Novo Mint</h3>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 auto 1rem auto; max-width: 280px;">
+                Adquira novas fusações/mints direto no contrato inteligente. Taxa fixa paga em BCOIN.
+              </p>
+              
+              <div class="qty-selector-container">
+                <label class="slot-label" style="font-size: 0.7rem;">Quantidade (Máx 100)</label>
+                <div class="qty-selector">
+                  <button type="button" class="qty-btn" id="btnQtyDec">-</button>
+                  <input type="number" class="qty-input" id="inputMintQty" min="1" max="100" value="1">
+                  <button type="button" class="qty-btn" id="btnQtyInc">+</button>
+                </div>
+                <div class="quick-select-row">
+                  <button type="button" class="quick-select-btn active" data-val="1">1x</button>
+                  <button type="button" class="quick-select-btn" data-val="10">10x</button>
+                  <button type="button" class="quick-select-btn" data-val="50">50x</button>
+                  <button type="button" class="quick-select-btn" data-val="100">100x</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 0.6rem; text-align: center; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                Custo Total Estimado: <strong style="color: var(--accent-cyan);" id="mintCostEstimate">-- BCOIN</strong>
+              </div>
+              <button class="btn btn-primary" id="btnRequestMintContract" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; width: 100%; font-weight: 800; padding: 0.7rem;" disabled>Solicitar Mints</button>
+            </div>
+
+            <!-- Stepper de solicitação de mint -->
+            <div class="stepper-container" id="requestMintProgressContainer" style="display: none; margin-top: 1rem; text-align: left;">
+              <div class="stepper-header" style="font-size: 0.75rem;">
+                <span class="stepper-title" id="requestMintStepperTitle">Processando Solicitação</span>
+                <span class="stepper-status" id="requestMintStepperStatus">Aguardando</span>
+              </div>
+              <div class="stepper-bar-outer" style="height: 4px;">
+                <div class="stepper-bar-inner" id="requestMintStepperBarInner" style="width: 0%; background: linear-gradient(90deg, #00ffd8, #00ff55);"></div>
+              </div>
+              <div class="stepper-message" id="requestMintStepperMessage" style="font-size: 0.7rem; margin-top: 0.3rem;">Aguardando carteira...</div>
+            </div>
+
+          </div>
+
+          <!-- Card 2: Reivindicar & Processar Mints Pendentes -->
+          <div class="glass-box" style="padding: 2rem 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="text-align: center;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem; animation: pulse-transfer 2s infinite ease-in-out;">✨</div>
+              <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Processar Mints</h3>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 auto 1.5rem auto; max-width: 280px;">
+                Reivindique as fusações compradas para gerar visualmente os heróis e adicioná-los à sua carteira.
+              </p>
+
+              <div style="background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.1); border-radius: 12px; padding: 1rem; max-width: 220px; margin: 0 auto 1.5rem auto; display: flex; flex-direction: column; gap: 0.25rem; align-items: center;">
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Solicitações Pendentes</span>
+                <span style="font-size: 2rem; font-weight: 800; color: var(--accent-cyan); text-shadow: 0 0 15px rgba(0, 240, 255, 0.3);" id="mintPendingCount">0</span>
+              </div>
+            </div>
+
+            <div>
+              <button class="btn btn-primary" id="btnClaimPendingWorkstation" style="background: linear-gradient(135deg, #00ffd8 0%, #00ff55 100%); border-color: #00ffd8; color: #040814; width: 100%; font-weight: 800; padding: 0.7rem;" disabled>Processar e Mintar Heróis</button>
+            </div>
+
+            <!-- Stepper de processamento/claim -->
+            <div class="stepper-container" id="mintProgressContainer" style="display: none; margin-top: 1rem; text-align: left;">
+              <div class="stepper-header" style="font-size: 0.75rem;">
+                <span class="stepper-title" id="mintStepperTitle">Processando Mint</span>
+                <span class="stepper-status" id="mintStepperStatus">Pendente</span>
+              </div>
+              <div class="stepper-bar-outer" style="height: 4px;">
+                <div class="stepper-bar-inner" id="mintStepperBarInner" style="width: 0%; background: linear-gradient(90deg, #00ffd8, #00ff55);"></div>
+              </div>
+              <div class="stepper-message" id="mintStepperMessage" style="font-size: 0.7rem; margin-top: 0.3rem;">Aguardando confirmação...</div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Global Console Window -->
+    <div class="glass-box console-box" style="margin-top: 1.5rem;">
+      <h3>Histórico & Transações</h3>
+      <div class="console-output" id="consoleOutput">
+        <div class="console-line info"><span class="time">[--:--:--]</span>Console de transações pronto. Conecte sua carteira.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reveal Premium Modal -->
+  <div id="revealModal" class="reveal-modal" style="display: none;">
+    <div class="reveal-modal-overlay"></div>
+    <div class="reveal-modal-content">
+      <div class="reveal-modal-header">
+        <h2 class="reveal-title">✨ Novos Heróis Revelados! ✨</h2>
+        <p class="reveal-subtitle">Os seguintes heróis foram gerados na blockchain e adicionados ao seu inventário:</p>
+      </div>
+      <div class="reveal-cards-container" id="revealCardsContainer">
+        <!-- Dynamically populated card(s) -->
+      </div>
+      <div class="reveal-modal-footer">
+        <button class="btn btn-primary" id="btnCollectReveal" style="background: linear-gradient(135deg, #00ffd8 0%, #00ff55 100%); border-color: #00ffd8; color: #040814; font-weight: 800; padding: 0.8rem 2.5rem; border-radius: 8px;">Coletar e Equipar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Script Lógica Web3 -->
+  <script>
+    // Configurações de Rede padrão de preset
+    const PRESETS = {
+      bsc_mainnet: {
+        token: "0x30cc0553f6fa1faf6d7847891b9b36eb559dc618",
+        heroS: "0x9fb9b7349279266c85c0c9dd264d71d2a4b79ab4",
+        bcoin: "0x00e1656e45f18ec6747f5a8496fd39b50b38396d",
+        sen:   "0xb43ac9a81eda5a5b36839d5b6fc65606815361b0",
+        chainId: 56,
+        name: "BNB Smart Chain Mainnet"
+      },
+      bsc_testnet: {
+        token: "0x788ba689885c85eb32ff8dcd7d44126dcc02a043",
+        heroS: "0x4a81ef4b29749efe4c18665ed4cb1301197c9db4",
+        bcoin: "0x00e1656e45f18ec6747f5a8496fd39b50b38396d",
+        sen:   "0xb43ac9a81eda5a5b36839d5b6fc65606815361b0",
+        chainId: 97,
+        name: "BNB Smart Chain Testnet"
+      },
+      polygon_mainnet: {
+        token: "0xd8a06936506379dbbe6e2d8ab1d8c96426320854",
+        heroS: "0x27313635e6b7aa3cc8436e24be2317d4a0e56beb",
+        bcoin: "0xb2c63830d4478cb331142fac075a39671a5541dc",
+        sen:   "0xfe302b8666539d5046cd9aa0707bb327f5f94c22",
+        chainId: 137,
+        name: "Polygon Mainnet"
+      },
+      polygon_testnet: {
+        token: "0xf9f21032bccce8997bb29ab9fbe19502191b7596",
+        heroS: "0x5f2a8aa67e11626ad9dc5671f8cd29762d4532d4",
+        bcoin: "0xb2c63830d4478cb331142fac075a39671a5541dc",
+        sen:   "0xfe302b8666539d5046cd9aa0707bb327f5f94c22",
+        chainId: 80002,
+        name: "Polygon Amoy Testnet"
+      }
+    };
+
+    const RARITY_NAMES = ["Comum", "Raro", "Super Raro", "Épico", "Lendário", "Super Lendário"];
+    const RARITY_COLORS = ["#8fa0c4", "#0099ff", "#00ffd8", "#ffaa00", "#ff3300", "#ffe600"];
+    const RARITY_RGBS = ["143, 160, 196", "0, 153, 255", "0, 255, 216", "255, 170, 0", "255, 51, 0", "255, 230, 0"];
+
+    const SKILL_NAMES = {
+      0: "Nenhuma",
+      1: "Battery (Regen)",
+      2: "Walk Through Blocks",
+      3: "Walk Through Bombs",
+      4: "Teleport",
+      5: "Bomb Range +1",
+      6: "Stamina +2",
+      7: "Speed +2",
+      8: "Bomb Power +2"
+    };
+
+    // State Variables
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+    let heroes = [];
+    
+    // Mass Fusion State Variables
+    let massFuseQueue = []; // Heróis agendados para fusão ordenados pela estratégia
+    let isFusing = false;
+
+    // Mass Transfer State Variables
+    let massTransferQueue = []; // Heróis agendados para transferência
+    let isTransferring = false;
+
+    // ABI definitions para interações com MetaMask
+    const BHERO_TOKEN_ABI = [
+      "function getTokenDetailsByOwner(address to) external view returns (uint256[] memory)",
+      "function getPendingTokens(address to) external view returns (uint256)",
+      "function processTokenRequests() external",
+      "function isApprovedForAll(address owner, address operator) external view returns (bool)",
+      "function setApprovalForAll(address operator, bool approved) external",
+      "function safeTransferFrom(address from, address to, uint256 tokenId) external"
+    ];
+
+    const BHERO_S_ABI = [
+      "function fusion(uint256[] calldata mainMaterials, uint256[] calldata buffMaterials) external",
+      "function mint(uint256 count) external"
+    ];
+
+    // Active Filters States (Senspark style)
+    const activeFilters = {
+      fuse: {
+        heroType: "all",
+        rarities: [], // list of rarities [0, 1...]
+        lvlMin: 1,
+        lvlMax: 5,
+        power: 0,
+        speed: 0,
+        stamina: 0,
+        bombNum: 0,
+        range: 0,
+        abilities: [] // list of active abilities [1, 2...]
+      },
+      transfer: {
+        heroType: "all",
+        rarities: [],
+        lvlMin: 1,
+        lvlMax: 5,
+        power: 0,
+        speed: 0,
+        stamina: 0,
+        bombNum: 0,
+        range: 0,
+        abilities: []
+      }
+    };
+
+    // DOM References
+    const btnConnect = document.getElementById("btnConnect");
+    const walletAddress = document.getElementById("walletAddress");
+    const walletInfo = document.getElementById("walletInfo");
+    const consoleOutput = document.getElementById("consoleOutput");
+    
+    // Workstation Tabs and Content
+    const btnTabFuse = document.getElementById("btnTabFuse");
+    const btnTabTransfer = document.getElementById("btnTabTransfer");
+    const btnTabMint = document.getElementById("btnTabMint");
+    const contentWorkstationFuse = document.getElementById("contentWorkstationFuse");
+    const contentWorkstationTransfer = document.getElementById("contentWorkstationTransfer");
+    const contentWorkstationMint = document.getElementById("contentWorkstationMint");
+    
+    const fuseHeroesGrid = document.getElementById("fuseHeroesGrid");
+    const transferHeroesGrid = document.getElementById("transferHeroesGrid");
+
+    const addrBHeroToken = document.getElementById("addrBHeroToken");
+    const addrBHeroS = document.getElementById("addrBHeroS");
+    const addrBCOINToken = document.getElementById("addrBCOINToken");
+
+    // Network & Env Tab DOM References
+    const tabBSC = document.getElementById("tabBSC");
+    const tabPolygon = document.getElementById("tabPolygon");
+    const tabTestnet = document.getElementById("tabTestnet");
+    const tabMainnet = document.getElementById("tabMainnet");
+    
+    let currentNetwork = "bsc"; // 'bsc' or 'polygon'
+    let currentEnv = "mainnet";  // 'testnet' or 'mainnet'
+    let currentWorkstation = "fuse"; // 'fuse' or 'transfer'
+
+    // Mass Fusion Dashboard
+    const massFuseRarity = document.getElementById("massFuseRarity");
+    const massFuseStrategy = document.getElementById("massFuseStrategy");
+    const massTotalEligible = document.getElementById("massTotalEligible");
+    const massTotalFusions = document.getElementById("massTotalFusions");
+    const massTotalBurn = document.getElementById("massTotalBurn");
+    const massTotalRemainder = document.getElementById("massTotalRemainder");
+    const massTotalGas = document.getElementById("massTotalGas");
+    const btnMassFuse = document.getElementById("btnMassFuse");
+    const btnClaimPending = document.getElementById("btnClaimPending");
+    const massProgressContainer = document.getElementById("massProgressContainer");
+    const stepperTitle = document.getElementById("stepperTitle");
+    const stepperStatus = document.getElementById("stepperStatus");
+    const stepperBarInner = document.getElementById("stepperBarInner");
+    const stepperMessage = document.getElementById("stepperMessage");
+
+    // Batch Transfer Dashboard
+    const addrTransferDestination = document.getElementById("addrTransferDestination");
+    const btnSelectNonFused = document.getElementById("btnSelectNonFused");
+    const btnClearTransfer = document.getElementById("btnClearTransfer");
+    const transferTotalCount = document.getElementById("transferTotalCount");
+    const transferTotalGas = document.getElementById("transferTotalGas");
+    const btnMassTransfer = document.getElementById("btnMassTransfer");
+    const transferProgressContainer = document.getElementById("transferProgressContainer");
+    const transferStepperTitle = document.getElementById("transferStepperTitle");
+    const transferStepperStatus = document.getElementById("transferStepperStatus");
+    const transferStepperBarInner = document.getElementById("transferStepperBarInner");
+    const transferStepperMessage = document.getElementById("transferStepperMessage");
+
+    const btnSelectFilteredTransfer = document.getElementById("btnSelectFilteredTransfer");
+    const addrBatchTransfer = document.getElementById("addrBatchTransfer");
+    const chkUseBatchContract = document.getElementById("chkUseBatchContract");
+
+    // Mint & Claim Workstation DOM References
+    const mintPendingCount = document.getElementById("mintPendingCount");
+    const btnClaimPendingWorkstation = document.getElementById("btnClaimPendingWorkstation");
+    const mintProgressContainer = document.getElementById("mintProgressContainer");
+    const mintStepperTitle = document.getElementById("mintStepperTitle");
+    const mintStepperStatus = document.getElementById("mintStepperStatus");
+    const mintStepperBarInner = document.getElementById("mintStepperBarInner");
+    const mintStepperMessage = document.getElementById("mintStepperMessage");
+
+    const btnQtyDec = document.getElementById("btnQtyDec");
+    const btnQtyInc = document.getElementById("btnQtyInc");
+    const inputMintQty = document.getElementById("inputMintQty");
+    const mintCostEstimate = document.getElementById("mintCostEstimate");
+    const btnRequestMintContract = document.getElementById("btnRequestMintContract");
+
+    const requestMintProgressContainer = document.getElementById("requestMintProgressContainer");
+    const requestMintStepperTitle = document.getElementById("requestMintStepperTitle");
+    const requestMintStepperStatus = document.getElementById("requestMintStepperStatus");
+    const requestMintStepperBarInner = document.getElementById("requestMintStepperBarInner");
+    const requestMintStepperMessage = document.getElementById("requestMintStepperMessage");
+
+    // Update contract addresses based on network & environment tabs
+    function updatePresetAddresses() {
+      const key = `${currentNetwork}_${currentEnv}`;
+      const preset = PRESETS[key];
+      if (preset) {
+        addrBHeroToken.value = preset.token;
+        addrBHeroS.value = preset.heroS;
+        if (addrBCOINToken && preset.bcoin) {
+          addrBCOINToken.value = preset.bcoin;
+        }
+        log(`Carregando preset para ${preset.name}: BHeroToken = ${preset.token}, BHeroS = ${preset.heroS}, BCOIN = ${preset.bcoin || 'N/A'}, SEN = ${preset.sen || 'N/A'}`, "info");
+      }
+    }
+
+    // Check if the current chain connected in MetaMask matches the active network setting
+    async function checkChainMismatch() {
+      // In standalone testing, warning is hidden by default if not fully connected
+      const networkWarning = document.getElementById("networkWarning");
+      if (!networkWarning) return;
+      if (!provider || !userAddress) {
+        networkWarning.style.display = "none";
+        return;
+      }
+      try {
+        const net = await provider.getNetwork();
+        const connectedChainId = Number(net.chainId);
+        const key = `${currentNetwork}_${currentEnv}`;
+        const preset = PRESETS[key];
+        
+        if (!preset) return;
+
+        if (connectedChainId !== preset.chainId) {
+          const warningMessage = document.getElementById("warningMessage");
+          if (warningMessage) warningMessage.textContent = `MetaMask conectada na rede errada! Esperado: ${preset.name}`;
+          networkWarning.style.display = "flex";
+        } else {
+          networkWarning.style.display = "none";
+        }
+      } catch (err) {
+        console.error("Erro ao verificar mismatch de rede:", err);
+      }
+    }
+
+    // Switch MetaMask chain to match active network setting
+    async function switchNetwork() {
+      if (!window.ethereum) return;
+      
+      const key = `${currentNetwork}_${currentEnv}`;
+      const preset = PRESETS[key];
+      if (!preset) return;
+
+      const hexChainId = "0x" + preset.chainId.toString(16);
+      try {
+        log(`Solicitando mudança de rede na MetaMask para ${preset.name}...`, "info");
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: hexChainId }]
+        });
+        log(`Rede alterada com sucesso!`, "success");
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            log(`Adicionando rede ${preset.name} na MetaMask...`, "info");
+            const rpcUrls = currentNetwork === "bsc" 
+              ? [currentEnv === "mainnet" ? "https://bsc-dataseed.binance.org/" : "https://data-seed-prebsc-1-s1.binance.org:8545/"]
+              : [currentEnv === "mainnet" ? "https://polygon-rpc.com" : "https://rpc-amoy.polygon.technology"];
+            const nativeCurrency = currentNetwork === "bsc"
+              ? { name: "BNB", symbol: "BNB", decimals: 18 }
+              : { name: "POL", symbol: "POL", decimals: 18 };
+
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: hexChainId,
+                chainName: preset.name,
+                rpcUrls: rpcUrls,
+                nativeCurrency: nativeCurrency,
+                blockExplorerUrls: currentNetwork === "bsc"
+                  ? [currentEnv === "mainnet" ? "https://bscscan.com/" : "https://testnet.bscscan.com/"]
+                  : [currentEnv === "mainnet" ? "https://polygonscan.com/" : "https://amoy.polygonscan.com/"]
+              }]
+            });
+            log(`Rede ${preset.name} adicionada e selecionada!`, "success");
+          } catch (addError) {
+            log(`Erro ao adicionar rede: ${addError.message}`, "error");
+          }
+        } else {
+          log(`Erro ao mudar de rede: ${switchError.message}`, "error");
+        }
+      }
+    }
+
+    // Print Log directly inside Console Window
+    function log(message, type = "info") {
+      const date = new Date();
+      const timeStr = date.toTimeString().split(' ')[0];
+      const div = document.createElement("div");
+      div.className = `console-line ${type}`;
+      div.innerHTML = `<span class="time">[${timeStr}]</span>${message}`;
+      consoleOutput.appendChild(div);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    // Connect wallet
+    async function connectWallet() {
+      if (!window.ethereum) {
+        log("MetaMask não encontrada! Instale a extensão no seu navegador.", "error");
+        alert("Instale a MetaMask para rodar este utilitário!");
+        return;
+      }
+      try {
+        log("Solicitando conexão com a MetaMask...", "info");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        userAddress = accounts[0];
+        
+        walletAddress.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        walletInfo.style.display = "flex";
+        btnConnect.textContent = "Desconectar";
+        btnConnect.classList.remove("btn-primary");
+        btnConnect.classList.add("btn-secondary");
+
+        localStorage.setItem("bombcrypto_wallet_connected", "true");
+        log(`Carteira conectada: ${userAddress}`, "success");
+        
+        // Enable request mint button since wallet is connected
+        if (btnRequestMintContract) {
+          btnRequestMintContract.disabled = false;
+        }
+
+        await checkChainMismatch();
+        await loadHeroes();
+        await checkPendingRequests();
+      } catch (err) {
+        log(`Erro ao conectar carteira: ${err.message}`, "error");
+      }
+    }
+
+    // Disconnect wallet
+    function disconnectWallet() {
+      userAddress = "";
+      signer = null;
+      localStorage.removeItem("bombcrypto_wallet_connected");
+      
+      walletInfo.style.display = "none";
+      btnConnect.textContent = "Conectar MetaMask";
+      btnConnect.classList.remove("btn-secondary");
+      btnConnect.classList.add("btn-primary");
+      
+      if (btnRequestMintContract) {
+        btnRequestMintContract.disabled = true;
+      }
+      
+      heroes = [];
+      renderHeroes();
+      
+      log("Carteira desconectada pelo usuário.", "warning");
+    }
+
+    // Update estimated BCOIN minting costs
+    function updateMintCosts() {
+      if (!inputMintQty) return;
+      let val = parseInt(inputMintQty.value) || 1;
+      if (val < 1) val = 1;
+      if (val > 100) val = 100;
+      inputMintQty.value = val;
+      
+      const bcoinCost = val * 50;
+      
+      if (mintCostEstimate) {
+        mintCostEstimate.textContent = `${bcoinCost} BCOIN`;
+      }
+    }
+
+    async function executeMintRequestContract() {
+      if (!signer) return;
+      
+      // Auto-switch chain mismatch safety check
+      try {
+        const net = await provider.getNetwork();
+        const connectedChainId = Number(net.chainId);
+        const key = `${currentNetwork}_${currentEnv}`;
+        const preset = PRESETS[key];
+        if (preset && connectedChainId !== preset.chainId) {
+          log(`MetaMask na rede errada! Solicitando troca automática para ${preset.name}...`, "warning");
+          await switchNetwork();
+          return;
+        }
+      } catch (netErr) {
+        console.error("Erro ao checar rede antes do mint:", netErr);
+      }
+
+      const fuseAddr = addrBHeroS.value.trim().toLowerCase();
+      const qty = parseInt(inputMintQty.value) || 1;
+      
+      const confirmed = confirm(
+        `Confirmação de Compra de Mint (Contrato):\n\n` +
+        `• Quantidade: ${qty} mint(s)\n` +
+        `• Custo Total Estimado: ${qty * 50} BCOIN\n\n` +
+        `Deseja enviar a transação para o contrato BHeroS?`
+      );
+      if (!confirmed) return;
+      
+      try {
+        btnRequestMintContract.disabled = true;
+        btnRequestMintContract.textContent = "Processando...";
+        
+        if (requestMintProgressContainer) {
+          requestMintProgressContainer.style.display = "block";
+          requestMintStepperTitle.textContent = "Processando Solicitação";
+          requestMintStepperStatus.textContent = "Verificando BCOIN";
+          requestMintStepperBarInner.style.width = "10%";
+          requestMintStepperBarInner.style.background = "linear-gradient(90deg, #00ffd8, #00ff55)";
+          requestMintStepperMessage.textContent = "Verificando limites de BCOIN...";
+        }
+
+        const bcoinAddr = addrBCOINToken.value.trim().toLowerCase();
+        const bcoinContract = new ethers.Contract(bcoinAddr, [
+          "function allowance(address owner, address spender) external view returns (uint256)",
+          "function approve(address spender, uint256 amount) external returns (bool)"
+        ], signer);
+
+        const bcoinCost = qty * 50;
+        const bcoinCostWei = ethers.parseEther(bcoinCost.toString());
+
+        log("Verificando saldo e autorização de BCOIN...", "info");
+        const currentAllowance = await bcoinContract.allowance(userAddress, fuseAddr);
+        
+        if (currentAllowance < bcoinCostWei) {
+          log("Autorização de BCOIN insuficiente! Solicitando transação de aprovação (Approve) na MetaMask...", "warning");
+          if (requestMintProgressContainer) {
+            requestMintStepperStatus.textContent = "Aprovando BCOIN";
+            requestMintStepperBarInner.style.width = "25%";
+            requestMintStepperMessage.textContent = "Aprove o limite de BCOIN na MetaMask (Permissão única)...";
+          }
+          
+          const approveTx = await bcoinContract.approve(fuseAddr, ethers.MaxUint256);
+          log(`Transação de aprovação BCOIN enviada! Hash: ${approveTx.hash}`, "info");
+          if (requestMintProgressContainer) {
+            requestMintStepperMessage.textContent = "Aguardando confirmação da aprovação de BCOIN...";
+          }
+          await approveTx.wait();
+          log("Sucesso! Permissão única de BCOIN confirmada.", "success");
+        }
+
+        // SEN Token Approval (required by BHeroS.mint even if cost is 0)
+        const key2 = `${currentNetwork}_${currentEnv}`;
+        const preset2 = PRESETS[key2];
+        if (preset2 && preset2.sen) {
+          const senAddr = preset2.sen.toLowerCase();
+          const senContract = new ethers.Contract(senAddr, [
+            "function allowance(address owner, address spender) external view returns (uint256)",
+            "function approve(address spender, uint256 amount) external returns (bool)"
+          ], signer);
+
+          try {
+            const senAllowance = await senContract.allowance(userAddress, fuseAddr);
+            if (senAllowance < ethers.MaxUint256 / 2n) {
+              log("Verificando autorização de SEN Token...", "info");
+              if (requestMintProgressContainer) {
+                requestMintStepperStatus.textContent = "Aprovando SEN";
+                requestMintStepperBarInner.style.width = "35%";
+                requestMintStepperMessage.textContent = "Aprove o limite de SEN na MetaMask (Permissão única)...";
+              }
+              const senApproveTx = await senContract.approve(fuseAddr, ethers.MaxUint256);
+              log(`Transação de aprovação SEN enviada! Hash: ${senApproveTx.hash}`, "info");
+              await senApproveTx.wait();
+              log("Sucesso! Permissão de SEN confirmada.", "success");
+            }
+          } catch (senErr) {
+            log(`Aviso: Não foi possível verificar SEN token (${senErr.message.slice(0, 80)}). Continuando...`, "warning");
+          }
+        }
+
+        if (requestMintProgressContainer) {
+          requestMintStepperStatus.textContent = "Aguardando Assinatura";
+          requestMintStepperBarInner.style.width = "50%";
+          requestMintStepperMessage.textContent = "Assine a transação de mint na MetaMask...";
+        }
+        
+        const bheroSContract = new ethers.Contract(fuseAddr, BHERO_S_ABI, signer);
+        const tx = await bheroSContract.mint(qty);
+        
+        log(`Transação de mint enviada! Hash: ${tx.hash}`, "info");
+        
+        if (requestMintProgressContainer) {
+          requestMintStepperStatus.textContent = "Enviada";
+          requestMintStepperBarInner.style.width = "70%";
+          requestMintStepperMessage.textContent = `Aguardando confirmação na rede... Hash: ${tx.hash.slice(0, 10)}...`;
+        }
+        
+        await tx.wait();
+        log(`Solicitação de ${qty} mint(s) concluída com sucesso no contrato!`, "success");
+        
+        if (requestMintProgressContainer) {
+          requestMintStepperStatus.textContent = "Concluído";
+          requestMintStepperBarInner.style.width = "100%";
+          requestMintStepperMessage.textContent = `${qty} mint(s) adquiridos! Eles já constam nas solicitações pendentes.`;
+        }
+        
+        await checkPendingRequests();
+        await loadHeroes();
+        
+        setTimeout(async () => {
+          if (requestMintProgressContainer) requestMintProgressContainer.style.display = "none";
+          btnRequestMintContract.disabled = false;
+          btnRequestMintContract.textContent = "Solicitar Mints";
+          
+          log("Iniciando processamento automático do herói...", "info");
+          await processRequests();
+        }, 1500);
+        
+      } catch (err) {
+        log(`Erro ao solicitar mint: ${err.message}`, "error");
+        if (requestMintProgressContainer) {
+          requestMintStepperStatus.textContent = "Erro";
+          requestMintStepperBarInner.style.width = "100%";
+          requestMintStepperBarInner.style.background = "linear-gradient(90deg, #ff3300, #ff0055)";
+          requestMintStepperMessage.textContent = `Falha: ${err.message.slice(0, 60)}`;
+        }
+        btnRequestMintContract.disabled = false;
+        btnRequestMintContract.textContent = "Solicitar Mints";
+      }
+    }
+
+    // Decode bitwise data based on BHeroDetails.sol
+    function decodeHeroDetails(detailsBig) {
+      const details = BigInt(detailsBig);
+      
+      const id = Number(details & ((1n << 30n) - 1n));
+      const index = Number((details >> 30n) & ((1n << 10n) - 1n));
+      const rarity = Number((details >> 40n) & 31n);
+      const level = Number((details >> 45n) & 31n);
+      const color = Number((details >> 50n) & 31n);
+      
+      const highBitSkin = Number((details >> 55n) & 31n);
+      const lowBitSkin = Number((details >> 245n) & 31n);
+      const skin = (highBitSkin << 5) | lowBitSkin;
+      
+      const stamina = Number((details >> 60n) & 31n);
+      const speed = Number((details >> 65n) & 31n);
+      const bombSkin = Number((details >> 70n) & 31n);
+      const bombCount = Number((details >> 75n) & 31n);
+      const bombPower = Number((details >> 80n) & 31n);
+      const bombRange = Number((details >> 85n) & 31n);
+      
+      const abilityCount = Number((details >> 90n) & 31n);
+      const abilities = [];
+      for (let i = 0; i < abilityCount; i++) {
+        abilities.push(Number((details >> (95n + BigInt(i) * 5n)) & 31n));
+      }
+      
+      const blockNumber = Number((details >> 145n) & ((1n << 30n) - 1n));
+      const randomizeAbilityCounter = Number((details >> 175n) & 31n);
+      
+      const abilitySizeHeroS = Number((details >> 180n) & 31n);
+      const abilityHeroS = [];
+      for (let j = 0; j < abilitySizeHeroS; j++) {
+        abilityHeroS.push(Number((details >> (185n + BigInt(j) * 5n)) & 31n));
+      }
+      
+      const numUpgradeShieldLevel = Number((details >> 235n) & 31n);
+      const numResetShield = Number((details >> 240n) & ((1n << 10n) - 1n));
+      
+      const isHeroS = abilitySizeHeroS > 0;
+
+      return {
+        id, index, rarity, level, color, skin, stamina, speed, bombSkin, bombCount,
+        bombPower, bombRange, abilities, blockNumber, randomizeAbilityCounter,
+        abilityHeroS, numUpgradeShieldLevel, numResetShield, isHeroS
+      };
+    }
+
+    async function loadHeroes() {
+      if (!userAddress) return;
+      
+      // Chain mismatch guard with friendly error explanation
+      try {
+        const net = await provider.getNetwork();
+        const connectedChainId = Number(net.chainId);
+        const key = `${currentNetwork}_${currentEnv}`;
+        const preset = PRESETS[key];
+        if (preset && connectedChainId !== preset.chainId) {
+          log(`MetaMask na rede errada! Esperado: ${preset.name}. Clique em 'Trocar de Rede' no topo ou troque na MetaMask.`, "error");
+          fuseHeroesGrid.innerHTML = `
+            <div class="empty-state">
+              <svg fill="none" stroke="var(--danger-crimson)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 40px; height: 40px; margin-bottom: 0.5rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <p style="color: var(--danger-crimson); font-weight: bold; font-size: 0.9rem;">Rede MetaMask Incorreta</p>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">Por favor, selecione ou troque para <strong>${preset.name}</strong> para listar seus heróis.</p>
+            </div>`;
+          transferHeroesGrid.innerHTML = fuseHeroesGrid.innerHTML;
+          return;
+        }
+      } catch (netErr) {
+        console.error("Erro ao checar rede no loadHeroes:", netErr);
+      }
+
+      const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+      if (!ethers.isAddress(tokenAddr)) {
+        log("Endereço do contrato BHeroToken inválido!", "error");
+        return;
+      }
+
+      try {
+        log("Lendo heróis da blockchain...", "info");
+        fuseHeroesGrid.innerHTML = `<div class="empty-state"><p>Buscando heróis...</p></div>`;
+        transferHeroesGrid.innerHTML = `<div class="empty-state"><p>Buscando heróis...</p></div>`;
+        
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, provider);
+        const detailsArray = await tokenContract.getTokenDetailsByOwner(userAddress);
+        
+        heroes = [];
+        for (let i = 0; i < detailsArray.length; i++) {
+          const decoded = decodeHeroDetails(detailsArray[i]);
+          heroes.push(decoded);
+        }
+
+        log(`Sucesso: ${heroes.length} heróis carregados com sucesso!`, "success");
+        renderHeroes();
+        updateMassFusionState();
+        updateMassTransferState();
+      } catch (err) {
+        log(`Erro ao carregar heróis: ${err.message}`, "error");
+        fuseHeroesGrid.innerHTML = `<div class="empty-state"><p>Erro ao ler dados da rede.</p></div>`;
+        transferHeroesGrid.innerHTML = `<div class="empty-state"><p>Erro ao ler dados da rede.</p></div>`;
+      }
+    }
+
+    // Check for pending token request to claim
+    async function checkPendingRequests() {
+      if (!userAddress) return;
+      const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+      try {
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, provider);
+        const pendingCount = Number(await tokenContract.getPendingTokens(userAddress));
+        
+        // 1. Fallback banner under Mass Fusion
+        if (pendingCount > 0) {
+          log(`Você possui ${pendingCount} solicitação(ões) de herói(s) pendente(s) prontas para serem processadas/reivindicadas!`, "warning");
+          btnClaimPending.style.display = "block";
+          btnClaimPending.textContent = `Processar Requests (${pendingCount})`;
+        } else {
+          btnClaimPending.style.display = "none";
+        }
+
+        // 2. Dedicated Mint & Claim workstation tab
+        if (mintPendingCount) {
+          mintPendingCount.textContent = pendingCount;
+        }
+        if (btnClaimPendingWorkstation) {
+          btnClaimPendingWorkstation.disabled = (pendingCount === 0);
+        }
+      } catch (err) {
+        console.error("Erro ao checar requests pendentes:", err);
+      }
+    }
+
+    async function processRequests() {
+      if (!signer) return;
+      
+      // Auto-switch chain mismatch safety check
+      try {
+        const net = await provider.getNetwork();
+        const connectedChainId = Number(net.chainId);
+        const key = `${currentNetwork}_${currentEnv}`;
+        const preset = PRESETS[key];
+        if (preset && connectedChainId !== preset.chainId) {
+          log(`MetaMask na rede errada! Solicitando troca automática para ${preset.name}...`, "warning");
+          await switchNetwork();
+          return;
+        }
+      } catch (netErr) {
+        console.error("Erro ao checar rede antes de processar:", netErr);
+      }
+
+      const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+      const isMintTab = (currentWorkstation === "mint");
+      
+      // Captura o estado dos heróis atuais antes do claim para comparação posterior
+      const oldHeroIds = new Set(heroes.map(h => h.id));
+      
+      try {
+        log("Iniciando transação para processar/reivindicar novos heróis...", "info");
+        
+        if (isMintTab && mintProgressContainer) {
+          mintProgressContainer.style.display = "block";
+          mintStepperTitle.textContent = "Processando Reivindicação";
+          mintStepperStatus.textContent = "Aguardando Assinatura";
+          mintStepperBarInner.style.width = "20%";
+          mintStepperBarInner.style.background = "linear-gradient(90deg, #00ffd8, #00ff55)";
+          mintStepperMessage.textContent = "Por favor, aprove a transação na MetaMask...";
+          btnClaimPendingWorkstation.disabled = true;
+          btnClaimPendingWorkstation.textContent = "Aguardando Carteira...";
+        }
+
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, signer);
+        
+        // Estimar gás para interceptar erros amigavelmente caso o bloco da blockchain não esteja pronto
+        let gasLimitOverride;
+        try {
+          const estimatedGas = await tokenContract.processTokenRequests.estimateGas();
+          // Adiciona 40% de margem de segurança para evitar out of gas
+          gasLimitOverride = (estimatedGas * 140n) / 100n;
+        } catch (gasErr) {
+          console.error("Falha na estimativa de gás:", gasErr);
+          throw new Error("A blockchain ainda não gerou o seed aleatório de bloco para a sua solicitação de Mint. Por favor, aguarde 1 a 2 minutos e clique em Processar novamente.");
+        }
+        
+        const tx = await tokenContract.processTokenRequests({ gasLimit: gasLimitOverride });
+        log(`Transação enviada! Hash: ${tx.hash}`, "info");
+        
+        if (isMintTab && mintProgressContainer) {
+          mintStepperStatus.textContent = "Transação Enviada";
+          mintStepperBarInner.style.width = "60%";
+          mintStepperMessage.textContent = `Aguardando confirmação na rede... Hash: ${tx.hash.slice(0, 10)}...`;
+        }
+
+        await tx.wait();
+        log("Transação confirmada! Carregando novos heróis...", "success");
+        
+        if (isMintTab && mintProgressContainer) {
+          mintStepperStatus.textContent = "Sincronizando";
+          mintStepperBarInner.style.width = "85%";
+          mintStepperMessage.textContent = "Sincronizando novos heróis adquiridos...";
+        }
+
+        await loadHeroes();
+        await checkPendingRequests();
+        
+        if (isMintTab && mintProgressContainer) {
+          mintStepperStatus.textContent = "Concluído";
+          mintStepperBarInner.style.width = "100%";
+          mintStepperMessage.textContent = "Processamento realizado com sucesso!";
+          btnClaimPendingWorkstation.textContent = "Processar e Mintar Heróis";
+        }
+        
+        // Comparar heróis para identificar e exibir os novos mintados
+        const newHeroes = heroes.filter(h => !oldHeroIds.has(h.id));
+        if (newHeroes.length > 0) {
+          log(`Revelando ${newHeroes.length} novos heróis no inventário!`, "success");
+          showRevealedHeroes(newHeroes);
+        } else {
+          log("Nenhum novo herói foi identificado na comparação local (talvez já carregados).", "warning");
+        }
+        
+        if (isMintTab && mintProgressContainer) {
+          setTimeout(() => {
+            mintProgressContainer.style.display = "none";
+          }, 5000);
+        }
+      } catch (err) {
+        log(`Erro ao processar solicitações: ${err.message}`, "error");
+        if (isMintTab && mintProgressContainer) {
+          mintStepperStatus.textContent = "Erro";
+          mintStepperBarInner.style.width = "100%";
+          mintStepperBarInner.style.background = "linear-gradient(90deg, #ff3300, #ff0055)";
+          mintStepperMessage.textContent = `Falha: ${err.message.slice(0, 60)}`;
+          btnClaimPendingWorkstation.disabled = false;
+          btnClaimPendingWorkstation.textContent = "Processar e Mintar Heróis";
+        }
+      }
+    }
+
+    // Exibir modal de revelação dos novos heróis mintados
+    function showRevealedHeroes(newHeroes) {
+      const container = document.getElementById("revealCardsContainer");
+      if (!container) return;
+      
+      container.innerHTML = "";
+      
+      newHeroes.forEach(hero => {
+        const rarityName = RARITY_NAMES[hero.rarity] || `Raridade ${hero.rarity}`;
+        const rarityColor = RARITY_COLORS[hero.rarity] || "#fff";
+        const rarityRgb = RARITY_RGBS[hero.rarity] || "255, 255, 255";
+        
+        const skillBadges = hero.abilities.map(skillId => `
+          <span class="skill-tag" style="background: rgba(${rarityRgb}, 0.1); border-color: rgba(${rarityRgb}, 0.3); color: ${rarityColor};">${SKILL_NAMES[skillId] || `Skill #${skillId}`}</span>
+        `).join("");
+
+        const heroSTag = hero.isHeroS ? `<div class="hero-heros-tag">HeroS</div>` : "";
+
+        const card = document.createElement("div");
+        card.className = "reveal-card";
+        card.style.setProperty("--rarity-color", rarityColor);
+        card.style.setProperty("--rarity-color-rgb", rarityRgb);
+        
+        card.innerHTML = `
+          <div class="hero-card-header">
+            <span class="hero-id">#${hero.id}</span>
+            <span class="hero-rarity-badge" style="background: ${rarityColor}20; color: ${rarityColor}; border: 1px solid ${rarityColor}50;">${rarityName}</span>
+          </div>
+          <div class="hero-avatar-area">
+            ${heroSTag}
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="rgba(${rarityRgb}, 0.15)" stroke="${rarityColor}" stroke-width="3" />
+              <path d="M35 45 Q50 35 65 45 M35 60 Q50 70 65 60" fill="none" stroke="${rarityColor}" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="42" cy="48" r="4" fill="${rarityColor}" />
+              <circle cx="58" cy="48" r="4" fill="${rarityColor}" />
+            </svg>
+            <div class="hero-level">Lvl ${hero.level}</div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item"><span>Pow:</span><span>${hero.bombPower}</span></div>
+            <div class="stat-item"><span>Spd:</span><span>${hero.speed}</span></div>
+            <div class="stat-item"><span>Stm:</span><span>${hero.stamina}</span></div>
+            <div class="stat-item"><span>Rng:</span><span>${hero.bombRange}</span></div>
+          </div>
+          <div class="hero-skills">
+            ${skillBadges || '<span class="skill-tag" style="font-style: italic;">Sem Skills</span>'}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      
+      const modal = document.getElementById("revealModal");
+      if (modal) {
+        modal.style.display = "flex";
+      }
+    }
+
+    // Registrar evento de fechar o modal
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnCollectReveal = document.getElementById("btnCollectReveal");
+      if (btnCollectReveal) {
+        btnCollectReveal.addEventListener("click", () => {
+          const modal = document.getElementById("revealModal");
+          if (modal) {
+            modal.style.display = "none";
+          }
+        });
+      }
+    });
+
+    // Registrar fechamento fallback imediato por script direto
+    setTimeout(() => {
+      const btnCollectReveal = document.getElementById("btnCollectReveal");
+      if (btnCollectReveal) {
+        btnCollectReveal.onclick = () => {
+          const modal = document.getElementById("revealModal");
+          if (modal) modal.style.display = "none";
+        };
+      }
+    }, 500);
+
+    // Helper to get filtered heroes for a specific tab
+    function getFilteredHeroes(tab) {
+      const filters = activeFilters[tab];
+      const searchInput = document.getElementById(tab === "fuse" ? "searchFuseHeroId" : "searchTransferHeroId");
+      const searchVal = searchInput ? searchInput.value.trim() : "";
+
+      return heroes.filter(hero => {
+        // 1. Hero Type filter
+        if (filters.heroType === "normal" && hero.isHeroS) return false;
+        if (filters.heroType === "heros" && !hero.isHeroS) return false;
+
+        // 2. Rarity checkboxes filter
+        if (filters.rarities.length > 0 && !filters.rarities.includes(hero.rarity)) return false;
+
+        // 3. Level Range filter
+        if (hero.level < filters.lvlMin || hero.level > filters.lvlMax) return false;
+
+        // 4. Attributes Stats filters
+        if (hero.bombPower < filters.power) return false;
+        if (hero.speed < filters.speed) return false;
+        if (hero.stamina < filters.stamina) return false;
+        if (hero.bombCount < filters.bombNum) return false;
+        if (hero.bombRange < filters.range) return false;
+
+        // 5. Ability Visual Icons filter
+        if (filters.abilities.length > 0) {
+          const hasAllAbilities = filters.abilities.every(skillId => 
+            hero.abilities.includes(skillId) || hero.abilityHeroS.includes(skillId)
+          );
+          if (!hasAllAbilities) return false;
+        }
+
+        // 6. Search by ID
+        if (searchVal && !hero.id.toString().includes(searchVal)) return false;
+
+        return true;
+      });
+    }
+
+    // Render Grid under active workstation tabs
+    function renderGrid(tab, gridElement) {
+      if (!gridElement) return;
+
+      const filtered = getFilteredHeroes(tab);
+
+      if (filtered.length === 0) {
+        gridElement.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 40px; height: 40px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>Nenhum herói encontrado com esses filtros.</p>
+          </div>`;
+        return;
+      }
+
+      gridElement.innerHTML = "";
+      filtered.forEach(hero => {
+        const rarityName = RARITY_NAMES[hero.rarity] || `Raridade ${hero.rarity}`;
+        const rarityColor = RARITY_COLORS[hero.rarity] || "#fff";
+        const rarityRgb = RARITY_RGBS[hero.rarity] || "255, 255, 255";
+        
+        const isScheduledBurn = massFuseQueue.some(q => q.id === hero.id);
+        const isScheduledTransfer = massTransferQueue.some(q => q.id === hero.id);
+        
+        let cardClass = "hero-card";
+        if (isScheduledBurn && tab === "fuse") cardClass += " scheduled-burn";
+        if (isScheduledTransfer && tab === "transfer") cardClass += " scheduled-transfer";
+
+        const card = document.createElement("div");
+        card.className = cardClass;
+        card.style.setProperty("--rarity-color", rarityColor);
+        card.style.setProperty("--rarity-color-rgb", rarityRgb);
+        
+        const skillBadges = hero.abilities.map(skillId => `
+          <span class="skill-tag">${SKILL_NAMES[skillId] || `Skill #${skillId}`}</span>
+        `).join("");
+
+        const heroSTag = hero.isHeroS ? `<div class="hero-heros-tag">HeroS</div>` : "";
+        const burnBadge = (isScheduledBurn && tab === "fuse") ? `<div class="burn-badge">🔥 QUEIMAR</div>` : "";
+        const transferBadge = (isScheduledTransfer && tab === "transfer") ? `<div class="burn-badge transfer-badge">✈️ ENVIAR</div>` : "";
+
+        card.innerHTML = `
+          <div class="hero-card-header">
+            <span class="hero-id">#${hero.id}</span>
+            <span class="hero-rarity-badge">${rarityName}</span>
+          </div>
+          <div class="hero-avatar-area">
+            ${heroSTag}
+            ${burnBadge}
+            ${transferBadge}
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="rgba(${rarityRgb}, 0.15)" stroke="${rarityColor}" stroke-width="3" />
+              <path d="M35 45 Q50 35 65 45 M35 60 Q50 70 65 60" fill="none" stroke="${rarityColor}" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="42" cy="48" r="4" fill="${rarityColor}" />
+              <circle cx="58" cy="48" r="4" fill="${rarityColor}" />
+            </svg>
+            <div class="hero-level">Lvl ${hero.level}</div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item"><span>Pow:</span><span>${hero.bombPower}</span></div>
+            <div class="stat-item"><span>Spd:</span><span>${hero.speed}</span></div>
+            <div class="stat-item"><span>Stm:</span><span>${hero.stamina}</span></div>
+            <div class="stat-item"><span>Rng:</span><span>${hero.bombRange}</span></div>
+          </div>
+          <div class="hero-skills">
+            ${skillBadges || '<span class="skill-tag" style="font-style: italic;">Sem Skills</span>'}
+          </div>
+        `;
+
+        card.addEventListener("click", () => handleHeroClick(hero));
+        gridElement.appendChild(card);
+      });
+    }
+
+    // Render Heroes to screen with filters
+    function renderHeroes() {
+      // 1. Render Fuse Grid
+      renderGrid("fuse", fuseHeroesGrid);
+      // 2. Render Transfer Grid
+      renderGrid("transfer", transferHeroesGrid);
+    }
+
+    // Click handler to toggle hero selection for Batch Transfer
+    function handleHeroClick(hero) {
+      log(`Visualizando Herói #${hero.id} (${RARITY_NAMES[hero.rarity]}) - Pow: ${hero.bombPower}, Spd: ${hero.speed}, Stm: ${hero.stamina}, Rng: ${hero.bombRange}`, "info");
+      
+      // If we are on the fuse tab, clicks are only for details viewing
+      if (currentWorkstation !== "transfer") {
+        return;
+      }
+
+      // Protect heroes scheduled to be burned
+      if (massFuseQueue.some(q => q.id === hero.id)) {
+        log(`Herói #${hero.id} está agendado para fusão e não pode ser transferido.`, "warning");
+        return;
+      }
+
+      // Toggle from transfer queue
+      const idx = massTransferQueue.findIndex(q => q.id === hero.id);
+      if (idx > -1) {
+        massTransferQueue.splice(idx, 1);
+        log(`Herói #${hero.id} removido da seleção de transferência.`, "info");
+      } else {
+        massTransferQueue.push(hero);
+        log(`Herói #${hero.id} selecionado para transferência (ficará protegido).`, "success");
+      }
+      
+      updateMassTransferState();
+      renderHeroes();
+    }
+
+    // Dynamic stats and fusions counter
+    function updateMassFusionState() {
+      if (heroes.length === 0) {
+        massTotalEligible.textContent = "0";
+        massTotalFusions.textContent = "0";
+        massTotalBurn.textContent = "0";
+        massTotalRemainder.textContent = "0";
+        massTotalGas.textContent = "0.0000 BNB ($0.00 USD)";
+        btnMassFuse.disabled = true;
+        massFuseQueue = [];
+        return;
+      }
+
+      const targetMaterialRarity = parseInt(massFuseRarity.value);
+      const strategy = massFuseStrategy.value;
+
+      // Filter based on selected target material rarity and sidebar active filters of 'fuse' tab
+      const filtered = heroes.filter(hero => {
+        if (hero.rarity !== targetMaterialRarity) return false;
+
+        const filters = activeFilters.fuse;
+        
+        // 1. Hero Type filter
+        if (filters.heroType === "normal" && hero.isHeroS) return false;
+        if (filters.heroType === "heros" && !hero.isHeroS) return false;
+
+        // 2. Level Range filter
+        if (hero.level < filters.lvlMin || hero.level > filters.lvlMax) return false;
+
+        // 3. Attributes Stats filters
+        if (hero.bombPower < filters.power) return false;
+        if (hero.speed < filters.speed) return false;
+        if (hero.stamina < filters.stamina) return false;
+        if (hero.bombCount < filters.bombNum) return false;
+        if (hero.bombRange < filters.range) return false;
+
+        // 4. Ability Visual Icons filter
+        if (filters.abilities.length > 0) {
+          const hasAllAbilities = filters.abilities.every(skillId => 
+            hero.abilities.includes(skillId) || hero.abilityHeroS.includes(skillId)
+          );
+          if (!hasAllAbilities) return false;
+        }
+
+        // 5. Search by ID (Sync search input)
+        const searchVal = document.getElementById("searchFuseHeroId").value.trim();
+        if (searchVal && !hero.id.toString().includes(searchVal)) return false;
+
+        return true;
+      });
+
+      // Calculate stats sum for prioritization
+      const scored = filtered.map(h => ({
+        hero: h,
+        score: h.bombPower + h.speed + h.stamina + h.bombRange
+      }));
+
+      // Sort based on strategy
+      if (strategy === "lowest") {
+        scored.sort((a, b) => a.score - b.score);
+      } else {
+        scored.sort((a, b) => b.score - a.score);
+      }
+
+      const totalEligible = scored.length;
+      const fusionsPossible = Math.floor(totalEligible / 4);
+      const totalBurn = fusionsPossible * 4;
+      const remainder = totalEligible - totalBurn;
+
+      // Populate queue
+      massFuseQueue = scored.slice(0, totalBurn).map(item => item.hero);
+
+      // Gas estimates
+      const totalGasBNB = fusionsPossible * 0.0004;
+      const totalGasUSD = fusionsPossible * 0.15;
+
+      // Update UI elements
+      massTotalEligible.textContent = totalEligible;
+      massTotalFusions.textContent = fusionsPossible;
+      massTotalBurn.textContent = totalBurn;
+      massTotalRemainder.textContent = remainder;
+      massTotalGas.textContent = `${totalGasBNB.toFixed(4)} BNB ($${totalGasUSD.toFixed(2)} USD)`;
+
+      // Enable/disable the button
+      btnMassFuse.disabled = (fusionsPossible === 0 || isFusing);
+    }
+
+    // Execute Mass Fusion batch consecutive transaction loop
+    async function executeMassFusion() {
+      if (!signer) {
+        alert("Conecte a MetaMask primeiro!");
+        return;
+      }
+
+      const totalFusions = Math.floor(massFuseQueue.length / 4);
+      if (totalFusions === 0) {
+        alert("Nenhum lote de 4 heróis qualificados para fusão!");
+        return;
+      }
+
+      const fuseAddr = addrBHeroS.value.trim().toLowerCase();
+      if (!ethers.isAddress(fuseAddr)) {
+        log("Endereço do contrato BHeroS inválido!", "error");
+        return;
+      }
+
+      const strategyText = massFuseStrategy.value === "lowest" ? "Menores Atributos Primeiro" : "Maiores Atributos Primeiro";
+      const rarityText = RARITY_NAMES[parseInt(massFuseRarity.value)];
+      const totalGasBNB = totalFusions * 0.0004;
+      const totalGasUSD = totalFusions * 0.15;
+      
+      const confirmed = confirm(
+        `Confirmação de Fusão em Massa:\n\n` +
+        `• Lotes para fusão: ${totalFusions} transações consecutivas\n` +
+        `• Heróis a serem queimados: ${totalFusions * 4} heróis\n` +
+        `• Raridade selecionada: ${rarityText}\n` +
+        `• Estratégia de queima: ${strategyText}\n` +
+        `• Estimativa de taxas total: ~${totalGasBNB.toFixed(4)} BNB (~$${totalGasUSD.toFixed(2)} USD)\n\n` +
+        `Deseja prosseguir com o envio das transações na MetaMask?`
+      );
+
+      if (!confirmed) {
+        log("Fusão em massa cancelada pelo usuário.", "info");
+        return;
+      }
+
+      try {
+        isFusing = true;
+        btnMassFuse.disabled = true;
+        btnMassFuse.textContent = "Processando Lotes...";
+        
+        // Show progress stepper
+        massProgressContainer.style.display = "flex";
+        stepperStatus.textContent = `0 / ${totalFusions}`;
+        stepperBarInner.style.width = "0%";
+        
+        // Check standard ERC-721 Approve All (isApprovedForAll)
+        const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, signer);
+        
+        log("Verificando permissões de gerenciamento de heróis...", "info");
+        stepperMessage.textContent = "Verificando permissões na carteira...";
+        const isApproved = await tokenContract.isApprovedForAll(userAddress, fuseAddr);
+        if (!isApproved) {
+          log("Autorização de heróis não encontrada! Solicitando permissão única (setApprovalForAll) para evitar aprovar de 1 em 1...", "warning");
+          stepperMessage.textContent = "Aprove o contrato na MetaMask (Permissão única)...";
+          const approveTx = await tokenContract.setApprovalForAll(fuseAddr, true);
+          log(`Transação de aprovação única enviada! Hash: ${approveTx.hash}`, "info");
+          stepperMessage.textContent = "Aguardando confirmação da transação de aprovação...";
+          await approveTx.wait();
+          log("Sucesso! Permissão única de gerenciamento confirmada.", "success");
+        }
+
+        const fuseContract = new ethers.Contract(fuseAddr, BHERO_S_ABI, signer);
+
+        log(`Iniciando fusão em massa de ${totalFusions} lotes de heróis da raridade ${rarityText}...`, "warning");
+
+        for (let i = 0; i < totalFusions; i++) {
+          const batchIndex = i + 1;
+          const startIdx = i * 4;
+          const batchHeroes = massFuseQueue.slice(startIdx, startIdx + 4);
+          const batchIds = batchHeroes.map(h => h.id);
+
+          log(`[Lote ${batchIndex}/${totalFusions}] Enviando fusão para heróis: [${batchIds.join(", ")}]`, "info");
+          stepperTitle.textContent = `Processando Lote ${batchIndex} de ${totalFusions}`;
+          stepperStatus.textContent = `${i} / ${totalFusions}`;
+          stepperBarInner.style.width = `${(i / totalFusions) * 100}%`;
+          stepperMessage.textContent = `Assine a transação do lote ${batchIndex} no MetaMask...`;
+
+          // Trigger MetaMask transaction - strictly no buffMaterials (2nd parameter is empty array [])
+          const tx = await fuseContract.fusion(batchIds, []);
+          log(`[Lote ${batchIndex}/${totalFusions}] Transação enviada! Hash: ${tx.hash}`, "info");
+          stepperMessage.textContent = `Aguardando confirmação do bloco para o lote ${batchIndex}...`;
+
+          await tx.wait();
+          log(`[Lote ${batchIndex}/${totalFusions}] Confirmado com sucesso!`, "success");
+        }
+
+        // Stepper complete state
+        stepperStatus.textContent = `${totalFusions} / ${totalFusions}`;
+        stepperBarInner.style.width = "100%";
+        stepperMessage.textContent = "Todas as fusões foram processadas e concluídas!";
+        log(`Sucesso: Todas as ${totalFusions} fusões foram concluídas com êxito!`, "success");
+
+        // Clear local queue and state
+        massFuseQueue = [];
+        isFusing = false;
+        btnMassFuse.textContent = "Fundir Heróis Selecionados";
+
+        // Auto process/claim requests if checked
+        if (document.getElementById("chkAutoProcess").checked) {
+          log("Processando as novas requests automaticamente...", "info");
+          stepperMessage.textContent = "Sincronizando novas solicitações de heróis...";
+          setTimeout(async () => {
+            await processRequests();
+            massProgressContainer.style.display = "none";
+          }, 6000);
+        } else {
+          await loadHeroes();
+          await checkPendingRequests();
+          setTimeout(() => {
+            massProgressContainer.style.display = "none";
+          }, 4000);
+        }
+
+      } catch (err) {
+        log(`Erro durante a fusão em massa: ${err.message}`, "error");
+        stepperMessage.textContent = `Erro: ${err.message.slice(0, 50)}...`;
+        isFusing = false;
+        btnMassFuse.disabled = false;
+        btnMassFuse.textContent = "Fundir Heróis Selecionados";
+      }
+    }
+
+    // Dynamic updates for batch transfer state and UI counters
+    function updateMassTransferState() {
+      const count = massTransferQueue.length;
+      transferTotalCount.textContent = count;
+      
+      const totalGasBNB = count * 0.0003;
+      transferTotalGas.textContent = `${totalGasBNB.toFixed(4)} BNB`;
+      
+      const dest = addrTransferDestination.value.trim().toLowerCase();
+      if (ethers.isAddress(dest)) {
+        localStorage.setItem("bombcrypto_secure_destination", dest);
+      }
+      
+      btnMassTransfer.disabled = (count === 0 || !ethers.isAddress(dest) || isTransferring);
+    }
+
+    // Execute safeTransferFrom loop or single batch transaction via smart contract
+    async function executeMassTransfer() {
+      if (!signer) {
+        alert("Conecte a MetaMask primeiro!");
+        return;
+      }
+      
+      const dest = addrTransferDestination.value.trim().toLowerCase();
+      if (!ethers.isAddress(dest)) {
+        alert("Digite um endereço de destino EVM válido!");
+        return;
+      }
+
+      const totalTransfers = massTransferQueue.length;
+      if (totalTransfers === 0) {
+        alert("Selecione pelo menos um herói para transferir!");
+        return;
+      }
+
+      const useBatch = chkUseBatchContract && chkUseBatchContract.checked;
+      const batchContractAddr = addrBatchTransfer ? addrBatchTransfer.value.trim().toLowerCase() : "";
+
+      const confirmed = confirm(
+        `Confirmação de Transferência em Massa:\n\n` +
+        `• Heróis a enviar: ${totalTransfers} heróis\n` +
+        `• Carteira de destino: ${dest}\n` +
+        `• Modo de envio: ${useBatch ? "Transação Única (Batch Contract)" : "Envio Sequencial"}\n` +
+        `• Estimativa de taxas total: ~${(useBatch ? 0.0008 : totalTransfers * 0.0003).toFixed(4)} BNB\n\n` +
+        `Você tem certeza absoluta que deseja transferir esses heróis para a carteira de segurança?`
+      );
+
+      if (!confirmed) {
+        log("Transferência em massa cancelada.", "info");
+        return;
+      }
+
+      try {
+        isTransferring = true;
+        btnMassTransfer.disabled = true;
+        btnMassTransfer.textContent = "Processando Envios...";
+        
+        // Show transfer stepper
+        transferProgressContainer.style.display = "flex";
+        transferStepperStatus.textContent = `0 / ${totalTransfers}`;
+        transferStepperBarInner.style.width = "0%";
+
+        const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, signer);
+
+        log(`Iniciando transferência em lote de ${totalTransfers} heróis para a carteira ${dest}...`, "warning");
+
+        if (useBatch && ethers.isAddress(batchContractAddr)) {
+          // Single transaction batch transfer!
+          log("Usando contrato inteligente BatchTransfer para envio em transação única...", "warning");
+          transferStepperTitle.textContent = "Verificando Aprovação";
+          transferStepperMessage.textContent = "Checando setApprovalForAll no contrato...";
+          
+          const isApproved = await tokenContract.isApprovedForAll(userAddress, batchContractAddr);
+          if (!isApproved) {
+            log("Autorização de heróis não encontrada para o contrato BatchTransfer! Solicitando aprovação...", "warning");
+            transferStepperMessage.textContent = "Aprove o contrato na MetaMask (Permissão única)...";
+            const approveTx = await tokenContract.setApprovalForAll(batchContractAddr, true);
+            await approveTx.wait();
+            log("Sucesso! Permissão confirmada.", "success");
+          }
+          
+          transferStepperTitle.textContent = "Processando Transação Única";
+          transferStepperMessage.textContent = "Assine a transferência em lote na MetaMask...";
+          transferStepperBarInner.style.width = "50%";
+          
+          const batchContract = new ethers.Contract(batchContractAddr, [
+            "function batchTransfer(address token, address to, uint256[] calldata tokenIds) external",
+            "function batchTransferFrom(address token, address from, address to, uint256[] calldata tokenIds) external",
+            "function safeBatchTransferFrom(address token, address from, address to, uint256[] calldata tokenIds) external"
+          ], signer);
+          
+          const tokenIds = massTransferQueue.map(h => h.id);
+          
+          // Try calling safeBatchTransferFrom first, or batchTransfer
+          let tx;
+          try {
+            log("Tentando chamada safeBatchTransferFrom...", "info");
+            tx = await batchContract.safeBatchTransferFrom(tokenAddr, userAddress, dest, tokenIds);
+          } catch (e1) {
+            try {
+              log("safeBatchTransferFrom falhou, tentando batchTransfer...", "info");
+              tx = await batchContract.batchTransfer(tokenAddr, dest, tokenIds);
+            } catch (e2) {
+              log("batchTransfer falhou, tentando batchTransferFrom...", "info");
+              tx = await batchContract.batchTransferFrom(tokenAddr, userAddress, dest, tokenIds);
+            }
+          }
+          
+          log(`Transação única de transferência enviada! Hash: ${tx.hash}`, "info");
+          transferStepperMessage.textContent = `Aguardando confirmação... Hash: ${tx.hash.slice(0, 10)}...`;
+          transferStepperBarInner.style.width = "80%";
+          
+          await tx.wait();
+          log(`Sucesso: Todos os ${totalTransfers} heróis foram enviados em uma única transação!`, "success");
+          
+          transferStepperStatus.textContent = `${totalTransfers} / ${totalTransfers}`;
+          transferStepperBarInner.style.width = "100%";
+          transferStepperMessage.textContent = "Todos os envios foram concluídos com sucesso!";
+        } else {
+          // Standard sequential transfers (Popup one by one)
+          for (let i = 0; i < totalTransfers; i++) {
+            const batchIndex = i + 1;
+            const hero = massTransferQueue[i];
+
+            log(`[Envio ${batchIndex}/${totalTransfers}] Transferindo Herói #${hero.id} (${RARITY_NAMES[hero.rarity]}) para ${dest}...`, "info");
+            transferStepperTitle.textContent = `Processando Envio ${batchIndex} de ${totalTransfers}`;
+            transferStepperStatus.textContent = `${i} / ${totalTransfers}`;
+            transferStepperBarInner.style.width = `${(i / totalTransfers) * 100}%`;
+            transferStepperMessage.textContent = `Assine o envio do Herói #${hero.id} na MetaMask...`;
+
+            // safeTransferFrom(address from, address to, uint256 tokenId)
+            const tx = await tokenContract.safeTransferFrom(userAddress, dest, hero.id);
+            log(`[Envio ${batchIndex}/${totalTransfers}] Transação enviada! Hash: ${tx.hash}`, "info");
+            transferStepperMessage.textContent = `Aguardando confirmação do envio do Herói #${hero.id}...`;
+
+            await tx.wait();
+            log(`[Envio ${batchIndex}/${totalTransfers}] Herói #${hero.id} transferido com sucesso!`, "success");
+          }
+
+          // Stepper complete state
+          transferStepperStatus.textContent = `${totalTransfers} / ${totalTransfers}`;
+          transferStepperBarInner.style.width = "100%";
+          transferStepperMessage.textContent = "Todos os envios foram processados e concluídos!";
+          log(`Sucesso: Todos os ${totalTransfers} heróis foram enviados com segurança!`, "success");
+        }
+
+        // Clear local queue and reload
+        massTransferQueue = [];
+        isTransferring = false;
+        btnMassTransfer.textContent = "Transferir Heróis Selecionados";
+
+        await loadHeroes();
+        await checkPendingRequests();
+        
+        setTimeout(() => {
+          transferProgressContainer.style.display = "none";
+        }, 4000);
+
+      } catch (err) {
+        log(`Erro durante a transferência em massa: ${err.message}`, "error");
+        transferStepperMessage.textContent = `Erro: ${err.message.slice(0, 50)}...`;
+        isTransferring = false;
+        btnMassTransfer.disabled = false;
+        btnMassTransfer.textContent = "Transferir Heróis Selecionados";
+      }
+    }
+
+    // Set up network selector click events
+    tabBSC.addEventListener("click", async () => {
+      tabBSC.classList.add("active");
+      tabPolygon.classList.remove("active");
+      currentNetwork = "bsc";
+      localStorage.setItem("bombcrypto_current_network", "bsc");
+      updatePresetAddresses();
+      await checkChainMismatch();
+      if (userAddress) await loadHeroes();
+    });
+
+    tabPolygon.addEventListener("click", async () => {
+      tabPolygon.classList.add("active");
+      tabBSC.classList.remove("active");
+      currentNetwork = "polygon";
+      localStorage.setItem("bombcrypto_current_network", "polygon");
+      updatePresetAddresses();
+      await checkChainMismatch();
+      if (userAddress) await loadHeroes();
+    });
+
+    tabTestnet.addEventListener("click", async () => {
+      tabTestnet.classList.add("active");
+      tabMainnet.classList.remove("active");
+      currentEnv = "testnet";
+      localStorage.setItem("bombcrypto_current_env", "testnet");
+      updatePresetAddresses();
+      await checkChainMismatch();
+      if (userAddress) await loadHeroes();
+    });
+
+    tabMainnet.addEventListener("click", async () => {
+      tabMainnet.classList.add("active");
+      tabTestnet.classList.remove("active");
+      currentEnv = "mainnet";
+      localStorage.setItem("bombcrypto_current_env", "mainnet");
+      updatePresetAddresses();
+      await checkChainMismatch();
+      if (userAddress) await loadHeroes();
+    });
+
+    // Senspark Filters binding and event setup logic
+    function setupFilterListeners(tab) {
+      const typeSelector = document.getElementById(tab === "fuse" ? "fuseHeroType" : "transferHeroType");
+      const lvlMinInput = document.getElementById(tab === "fuse" ? "fuseLvlMin" : "transferLvlMin");
+      const lvlMaxInput = document.getElementById(tab === "fuse" ? "fuseLvlMax" : "transferLvlMax");
+      const powerInput = document.getElementById(tab === "fuse" ? "fusePower" : "transferPower");
+      const speedInput = document.getElementById(tab === "fuse" ? "fuseSpeed" : "transferSpeed");
+      const staminaInput = document.getElementById(tab === "fuse" ? "fuseStamina" : "transferStamina");
+      const bombInput = document.getElementById(tab === "fuse" ? "fuseBomb" : "transferBomb");
+      const rangeInput = document.getElementById(tab === "fuse" ? "fuseRange" : "transferRange");
+      const searchInput = document.getElementById(tab === "fuse" ? "searchFuseHeroId" : "searchTransferHeroId");
+      
+      // Hero Type
+      typeSelector.addEventListener("change", () => {
+        activeFilters[tab].heroType = typeSelector.value;
+        onFilterChange(tab);
+      });
+
+      // Rarity checkboxes
+      const container = document.getElementById(tab === "fuse" ? "fuseRarities" : "transferRarities");
+      const checkboxes = container.querySelectorAll(".rarity-chk");
+      checkboxes.forEach(chk => {
+        chk.addEventListener("change", () => {
+          const val = parseInt(chk.value);
+          if (chk.checked) {
+            if (!activeFilters[tab].rarities.includes(val)) activeFilters[tab].rarities.push(val);
+          } else {
+            activeFilters[tab].rarities = activeFilters[tab].rarities.filter(r => r !== val);
+          }
+          onFilterChange(tab);
+        });
+      });
+
+      // Level and stats inputs
+      const statInputs = [lvlMinInput, lvlMaxInput, powerInput, speedInput, staminaInput, bombInput, rangeInput, searchInput];
+      statInputs.forEach(input => {
+        input.addEventListener("input", () => {
+          activeFilters[tab].lvlMin = parseInt(lvlMinInput.value) || 1;
+          activeFilters[tab].lvlMax = parseInt(lvlMaxInput.value) || 5;
+          activeFilters[tab].power = parseInt(powerInput.value) || 0;
+          activeFilters[tab].speed = parseInt(speedInput.value) || 0;
+          activeFilters[tab].stamina = parseInt(staminaInput.value) || 0;
+          activeFilters[tab].bombNum = parseInt(bombInput.value) || 0;
+          activeFilters[tab].range = parseInt(rangeInput.value) || 0;
+          onFilterChange(tab);
+        });
+      });
+
+      // Ability buttons
+      const abilityGrid = document.getElementById(tab === "fuse" ? "fuseAbilityGrid" : "transferAbilityGrid");
+      const abilityButtons = abilityGrid.querySelectorAll(".ability-icon-btn");
+      abilityButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const skillId = parseInt(btn.dataset.skill);
+          const index = activeFilters[tab].abilities.indexOf(skillId);
+          if (index > -1) {
+            activeFilters[tab].abilities.splice(index, 1);
+            btn.classList.remove("active");
+          } else {
+            activeFilters[tab].abilities.push(skillId);
+            btn.classList.add("active");
+          }
+          onFilterChange(tab);
+        });
+      });
+    }
+
+    function onFilterChange(tab) {
+      if (tab === "fuse") {
+        updateMassFusionState();
+      } else {
+        updateMassTransferState();
+      }
+      renderHeroes();
+    }
+
+    // Event listeners
+    btnConnect.addEventListener("click", () => {
+      if (userAddress) {
+        disconnectWallet();
+      } else {
+        connectWallet();
+      }
+    });
+    btnMassFuse.addEventListener("click", executeMassFusion);
+    btnClaimPending.addEventListener("click", processRequests);
+    btnClaimPendingWorkstation.addEventListener("click", processRequests);
+    
+    const btnSwitchNetwork = document.getElementById("btnSwitchNetwork");
+    if (btnSwitchNetwork) btnSwitchNetwork.addEventListener("click", switchNetwork);
+
+    // Workstation Tabs Switching
+    btnTabFuse.addEventListener("click", () => {
+      btnTabFuse.classList.add("active");
+      btnTabTransfer.classList.remove("active");
+      btnTabMint.classList.remove("active");
+      contentWorkstationFuse.classList.add("active");
+      contentWorkstationTransfer.classList.remove("active");
+      contentWorkstationMint.classList.remove("active");
+      currentWorkstation = "fuse";
+      localStorage.setItem("bombcrypto_current_workstation", "fuse");
+      renderHeroes();
+    });
+
+    btnTabTransfer.addEventListener("click", () => {
+      btnTabTransfer.classList.add("active");
+      btnTabFuse.classList.remove("active");
+      btnTabMint.classList.remove("active");
+      contentWorkstationTransfer.classList.add("active");
+      contentWorkstationFuse.classList.remove("active");
+      contentWorkstationMint.classList.remove("active");
+      currentWorkstation = "transfer";
+      localStorage.setItem("bombcrypto_current_workstation", "transfer");
+      renderHeroes();
+    });
+
+    btnTabMint.addEventListener("click", () => {
+      btnTabMint.classList.add("active");
+      btnTabFuse.classList.remove("active");
+      btnTabTransfer.classList.remove("active");
+      contentWorkstationMint.classList.add("active");
+      contentWorkstationFuse.classList.remove("active");
+      contentWorkstationTransfer.classList.remove("active");
+      currentWorkstation = "mint";
+      localStorage.setItem("bombcrypto_current_workstation", "mint");
+      checkPendingRequests();
+    });
+
+    // Batch Transfer Buttons Action
+    btnSelectFilteredTransfer.addEventListener("click", () => {
+      if (heroes.length === 0) return;
+      const filtered = getFilteredHeroes("transfer");
+      const eligible = filtered.filter(h => !massFuseQueue.some(q => q.id === h.id));
+      
+      let count = 0;
+      eligible.forEach(h => {
+        if (!massTransferQueue.some(q => q.id === h.id)) {
+          massTransferQueue.push(h);
+          count++;
+        }
+      });
+      
+      log(`Filtro Aplicado: Selecionados ${count} novos heróis para a fila de transferência (Total na fila: ${massTransferQueue.length}).`, "success");
+      updateMassTransferState();
+      renderHeroes();
+    });
+
+    btnSelectNonFused.addEventListener("click", () => {
+      if (heroes.length === 0) return;
+      const nonFused = heroes.filter(h => !massFuseQueue.some(q => q.id === h.id));
+      massTransferQueue = [...nonFused];
+      log(`Selecionados automaticamente ${massTransferQueue.length} heróis para transferência.`, "success");
+      updateMassTransferState();
+      renderHeroes();
+    });
+
+    btnClearTransfer.addEventListener("click", () => {
+      massTransferQueue = [];
+      log("Seleção de transferência em massa limpa.", "info");
+      updateMassTransferState();
+      renderHeroes();
+    });
+
+    btnMassTransfer.addEventListener("click", executeMassTransfer);
+    addrTransferDestination.addEventListener("input", updateMassTransferState);
+
+    // Sync mass fusion rarity selector
+    massFuseRarity.addEventListener("change", () => {
+      updateMassFusionState();
+      renderHeroes();
+    });
+    massFuseStrategy.addEventListener("change", () => {
+      updateMassFusionState();
+      renderHeroes();
+    });
+
+    // Mint workstation controls
+    if (btnQtyDec) {
+      btnQtyDec.addEventListener("click", () => {
+        let val = parseInt(inputMintQty.value) || 1;
+        if (val > 1) {
+          inputMintQty.value = val - 1;
+          updateMintCosts();
+        }
+      });
+    }
+
+    if (btnQtyInc) {
+      btnQtyInc.addEventListener("click", () => {
+        let val = parseInt(inputMintQty.value) || 1;
+        if (val < 100) {
+          inputMintQty.value = val + 1;
+          updateMintCosts();
+        }
+      });
+    }
+
+    if (inputMintQty) {
+      inputMintQty.addEventListener("input", updateMintCosts);
+    }
+
+    const quickSelectBtns = document.querySelectorAll(".quick-select-btn");
+    quickSelectBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        quickSelectBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        if (inputMintQty) {
+          inputMintQty.value = btn.dataset.val;
+          updateMintCosts();
+        }
+      });
+    });
+
+    if (btnRequestMintContract) {
+      btnRequestMintContract.addEventListener("click", executeMintRequestContract);
+    }
+
+    // Persistir e Carregar estados salvos
+    function applySavedStates() {
+      // 1. Carregar Rede
+      const savedNetwork = localStorage.getItem("bombcrypto_current_network");
+      if (savedNetwork && (savedNetwork === "bsc" || savedNetwork === "polygon")) {
+        currentNetwork = savedNetwork;
+        if (currentNetwork === "bsc") {
+          tabBSC.classList.add("active");
+          tabPolygon.classList.remove("active");
+        } else {
+          tabPolygon.classList.add("active");
+          tabBSC.classList.remove("active");
+        }
+      }
+
+      // 2. Carregar Ambiente (Mainnet / Testnet)
+      const savedEnv = localStorage.getItem("bombcrypto_current_env");
+      if (savedEnv && (savedEnv === "mainnet" || savedEnv === "testnet")) {
+        currentEnv = savedEnv;
+        if (currentEnv === "mainnet") {
+          tabMainnet.classList.add("active");
+          tabTestnet.classList.remove("active");
+        } else {
+          tabTestnet.classList.add("active");
+          tabMainnet.classList.remove("active");
+        }
+      }
+
+      // 3. Carregar Aba da Estação de Trabalho
+      const savedWorkstation = localStorage.getItem("bombcrypto_current_workstation");
+      if (savedWorkstation && (savedWorkstation === "fuse" || savedWorkstation === "transfer" || savedWorkstation === "mint")) {
+        currentWorkstation = savedWorkstation;
+        // Reset classes
+        btnTabFuse.classList.remove("active");
+        btnTabTransfer.classList.remove("active");
+        btnTabMint.classList.remove("active");
+        contentWorkstationFuse.classList.remove("active");
+        contentWorkstationTransfer.classList.remove("active");
+        contentWorkstationMint.classList.remove("active");
+
+        if (currentWorkstation === "fuse") {
+          btnTabFuse.classList.add("active");
+          contentWorkstationFuse.classList.add("active");
+        } else if (currentWorkstation === "transfer") {
+          btnTabTransfer.classList.add("active");
+          contentWorkstationTransfer.classList.add("active");
+        } else if (currentWorkstation === "mint") {
+          btnTabMint.classList.add("active");
+          contentWorkstationMint.classList.add("active");
+        }
+      }
+      
+      updatePresetAddresses();
+    }
+
+    // Load saved destination address and setup sidebars on page load
+    window.addEventListener("load", () => {
+      // Carrega os estados salvos de persistência (F5)
+      applySavedStates();
+
+      // 1. Setup sidebars
+      setupFilterListeners("fuse");
+      setupFilterListeners("transfer");
+
+      // 2. Load localStorage
+      const savedDest = localStorage.getItem("bombcrypto_secure_destination");
+      if (savedDest) {
+        addrTransferDestination.value = savedDest;
+        updateMassTransferState();
+      }
+
+      // Initialize mint costs estimate
+      updateMintCosts();
+
+      // 3. Auto-connect if connected previously
+      if (localStorage.getItem("bombcrypto_wallet_connected") === "true") {
+        connectWallet();
+      }
+    });
+
+    // MetaMask Events
+    if (window.ethereum) {
+      window.ethereum.on('chainChanged', () => window.location.reload());
+      window.ethereum.on('accountsChanged', () => window.location.reload());
+    }
+
+  </script>
+</body>
+</html>
