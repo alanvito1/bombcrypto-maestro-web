@@ -729,6 +729,7 @@
                 <input type="number" class="form-input compact" id="inputMarketPrice" placeholder="Ex: 10" min="0.1" step="any" style="width: 130px;">
               </div>
               <button class="btn btn-primary" id="btnMarketSell" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; padding: 0.5rem 1.5rem;" disabled>Vender Selecionados</button>
+              <button class="btn btn-secondary" id="btnMarketCancel" style="padding: 0.5rem 1.5rem;" disabled>Cancelar Listagens</button>
             </div>
           </div>
           
@@ -1002,6 +1003,7 @@
     const marketCancelArea = document.getElementById("marketCancelArea");
     const inputMarketPrice = document.getElementById("inputMarketPrice");
     const btnMarketSell = document.getElementById("btnMarketSell");
+    const btnMarketCancel = document.getElementById("btnMarketCancel");
     const btnMarketScan = document.getElementById("btnMarketScan");
 
     // Update contract addresses based on network & environment tabs
@@ -2074,14 +2076,14 @@
 
     // Dynamic updates for market state and UI counters
     function updateMarketState() {
-      const count = marketSelectedQueue.length;
-      let price = 0;
-      if (inputMarketPrice) {
-        price = parseFloat(inputMarketPrice.value);
-      }
       if (btnMarketSell) {
-        btnMarketSell.disabled = (count === 0 || isNaN(price) || price <= 0);
+        btnMarketSell.disabled = (marketSelectedQueue.length === 0);
       }
+      if (btnMarketCancel) {
+        btnMarketCancel.disabled = (marketSelectedQueue.length === 0);
+      }
+      // re-render the grid to update UI selection badges
+      renderHeroes();
     }
 
     // Execute safeTransferFrom loop or single batch transaction via smart contract
@@ -2539,9 +2541,10 @@
     }
 
     // Stake & Market Event Listeners
+    if (btnMarketSell) btnMarketSell.addEventListener("click", executeMarketSell);
+    if (btnMarketCancel) btnMarketCancel.addEventListener("click", executeMarketCancel);
     if (btnDepositStake) btnDepositStake.addEventListener("click", executeDepositStake);
     if (inputMarketPrice) inputMarketPrice.addEventListener("input", updateMarketState);
-    if (btnMarketSell) btnMarketSell.addEventListener("click", executeMarketSell);
     if (btnSubTabMarketSell) {
       btnSubTabMarketSell.addEventListener("click", () => {
         btnSubTabMarketSell.classList.add("active");
@@ -2698,6 +2701,38 @@
       } catch (err) {
         log(`Erro ao listar no mercado: ${err.message}`, "error");
         btnMarketSell.disabled = false;
+      }
+    }
+
+    async function executeMarketCancel() {
+      if (!signer) return alert("Conecte a MetaMask primeiro!");
+      
+      const count = marketSelectedQueue.length;
+      if (count === 0) return;
+      
+      const marketAddr = addrBHeroMarket.value.trim().toLowerCase();
+      
+      const confirmed = confirm(`Confirmar o cancelamento (delist) de ${count} herói(s) do mercado?\n\nA MetaMask abrirá ${count} vezes consecutivas.`);
+      if (!confirmed) return;
+      
+      try {
+        btnMarketCancel.disabled = true;
+        const marketContract = new ethers.Contract(marketAddr, BHERO_MARKET_ABI, signer);
+        
+        for (let i = 0; i < count; i++) {
+          const hero = marketSelectedQueue[i];
+          log(`[Cancel ${i+1}/${count}] Cancelando ordem do Herói #${hero.id}...`, "info");
+          const tx = await marketContract.cancelOrder(hero.id);
+          await tx.wait();
+          log(`[Cancel ${i+1}/${count}] Ordem cancelada para Herói #${hero.id}!`, "success");
+        }
+        
+        log(`Cancelamento concluído para ${count} heróis!`, "success");
+        marketSelectedQueue = [];
+        updateMarketState();
+      } catch (err) {
+        log(`Erro no cancelamento de mercado: ${err.message}`, "error");
+        btnMarketCancel.disabled = false;
       }
     }
 
