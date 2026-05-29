@@ -660,6 +660,8 @@
         heroS: "0x9fb9b7349279266c85c0c9dd264d71d2a4b79ab4",
         bcoin: "0x00e1656e45f18ec6747f5a8496fd39b50b38396d",
         sen:   "0xb43ac9a81eda5a5b36839d5b6fc65606815361b0",
+        stake: "0x053282c295419E67655a5032A4DA4e3f92D11F17",
+        market: "0x376A10E7f125A4E0a567cc08043c695Cd8EDd704",
         chainId: 56,
         name: "BNB Smart Chain Mainnet"
       },
@@ -668,6 +670,8 @@
         heroS: "0x4a81ef4b29749efe4c18665ed4cb1301197c9db4",
         bcoin: "0x00e1656e45f18ec6747f5a8496fd39b50b38396d",
         sen:   "0xb43ac9a81eda5a5b36839d5b6fc65606815361b0",
+        stake: "0x053282c295419E67655a5032A4DA4e3f92D11F17", // Testnet not provided, using mainnet as fallback
+        market: "0x376A10E7f125A4E0a567cc08043c695Cd8EDd704", // Testnet not provided, using mainnet as fallback
         chainId: 97,
         name: "BNB Smart Chain Testnet"
       },
@@ -676,6 +680,8 @@
         heroS: "0x27313635e6b7aa3cc8436e24be2317d4a0e56beb",
         bcoin: "0xb2c63830d4478cb331142fac075a39671a5541dc",
         sen:   "0xfe302b8666539d5046cd9aa0707bb327f5f94c22",
+        stake: "0x810570AA7e16cF14DefD69D4C9796f3c1Abe2d13",
+        market: "0xf3a7195920519f8A22cDf84EBB9F74342abE9812",
         chainId: 137,
         name: "Polygon Mainnet"
       },
@@ -684,6 +690,8 @@
         heroS: "0x5f2a8aa67e11626ad9dc5671f8cd29762d4532d4",
         bcoin: "0xb2c63830d4478cb331142fac075a39671a5541dc",
         sen:   "0xfe302b8666539d5046cd9aa0707bb327f5f94c22",
+        stake: "0x810570AA7e16cF14DefD69D4C9796f3c1Abe2d13", // Testnet not provided, using mainnet as fallback
+        market: "0xf3a7195920519f8A22cDf84EBB9F74342abE9812", // Testnet not provided, using mainnet as fallback
         chainId: 80002,
         name: "Polygon Amoy Testnet"
       }
@@ -907,7 +915,13 @@
         if (addrBCOINToken && preset.bcoin) {
           addrBCOINToken.value = preset.bcoin;
         }
-        log(`Carregando preset para ${preset.name}: BHeroToken = ${preset.token}, BHeroS = ${preset.heroS}, BCOIN = ${preset.bcoin || 'N/A'}, SEN = ${preset.sen || 'N/A'}`, "info");
+        if (addrBHeroStake && preset.stake) {
+          addrBHeroStake.value = preset.stake;
+        }
+        if (addrBHeroMarket && preset.market) {
+          addrBHeroMarket.value = preset.market;
+        }
+        log(`Carregando preset para ${preset.name}: BHeroToken = ${preset.token}, BHeroS = ${preset.heroS}, Stake = ${preset.stake || 'N/A'}, Market = ${preset.market || 'N/A'}`, "info");
       }
     }
 
