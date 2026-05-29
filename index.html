@@ -62,6 +62,16 @@
           <input type="text" class="form-input compact" id="addrBatchTransfer" value="" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);" placeholder="Contrato Multi-Transferência">
         </div>
 
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BHeroStake</label>
+          <input type="text" class="form-input compact" id="addrBHeroStake" value="0x8f2dDca84a29Cda158fB2B4De85317f2A33230c3" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);" placeholder="Endereço BHeroStake">
+        </div>
+
+        <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BHeroMarket</label>
+          <input type="text" class="form-input compact" id="addrBHeroMarket" value="0xe797A2E9F67b0eb38A14D1d1984606AE8F3532C2" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);" placeholder="Endereço BHeroMarket">
+        </div>
+
         <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
           <label class="slot-label" style="margin-bottom: 0.3rem;">Configurações Globais</label>
           <div class="checkbox-container" style="margin-top: 0.2rem;">
@@ -86,6 +96,14 @@
       <button class="workstation-tab" data-tab="mint" id="btnTabMint">
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2v-6h2v6z"/></svg>
         ✨ Reivindicar & Mint
+      </button>
+      <button class="workstation-tab" data-tab="stake" id="btnTabStake">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        🏦 Stake Manager
+      </button>
+      <button class="workstation-tab" data-tab="market" id="btnTabMarket">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:6px;"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v2h-2V5H5v14h14v-1h2zm-9-3l-4-4h3V4h2v7h3l-4 4zm6 0h2v2h-2v-2z"/></svg>
+        🏪 Market Manager
       </button>
     </div>
 
@@ -500,6 +518,113 @@
       </main>
     </div>
 
+    <!-- Workstation: STAKE MANAGER -->
+    <div class="workstation-content" id="contentWorkstationStake">
+      
+      <!-- Coluna Esquerda: Informações e Status -->
+      <aside class="senspark-filters-sidebar">
+        <h3 class="sidebar-title">Stake BCOIN</h3>
+        
+        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+          <h4 style="margin: 0 0 0.4rem 0; color: var(--text-primary); font-size: 0.8rem;">Como Funciona o Stake?</h4>
+          Você pode colocar seus BCOINs em "Stake" dentro de um Herói para fortalecê-lo ou cumprir requisitos de mineração.<br><br>
+          <span style="color: var(--accent-cyan);">Taxa de Saque:</span> Começa em 30% e diminui 1% a cada 24 horas até zerar (após 30 dias).
+        </div>
+
+      </aside>
+
+      <!-- Coluna Direita: Dashboard de Stake -->
+      <main class="workstation-main">
+        <div class="glass-box" style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0;">Gerenciamento de Stakes (BCOIN)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                Selecione os heróis para depositar ou confira seus saldos e taxas atuais para saque.
+              </p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+              <div>
+                <label class="slot-label" style="font-size: 0.7rem; margin-bottom: 0.2rem;">Quantidade (BCOIN)</label>
+                <input type="number" class="form-input compact" id="inputStakeAmount" placeholder="Ex: 50" min="1" step="any" style="width: 120px;">
+              </div>
+              <button class="btn btn-primary" id="btnDepositStake" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; padding: 0.5rem 1.5rem;" disabled>Depositar nos Selecionados</button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem;">
+             <div class="mass-stat-card cyan" style="flex: 1; padding: 0.5rem 0.75rem;">
+                <span class="mass-stat-label" style="font-size: 0.65rem;">Total em Stake (Heróis Atuais)</span>
+                <span class="mass-stat-value" id="stakeTotalBalance" style="font-size: 1.25rem;">0 BCOIN</span>
+             </div>
+             <div class="mass-stat-card emerald" style="flex: 1; padding: 0.5rem 0.75rem;">
+                <span class="mass-stat-label" style="font-size: 0.65rem;">Heróis Selecionados</span>
+                <span class="mass-stat-value" id="stakeSelectedCount" style="font-size: 1.25rem;">0</span>
+             </div>
+          </div>
+        </div>
+
+        <div class="heroes-grid" id="stakeHeroesGrid">
+          <div class="empty-state">
+            <p>Conecte a MetaMask para carregar seu inventário de heróis para Stake.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Workstation: MARKET MANAGER -->
+    <div class="workstation-content" id="contentWorkstationMarket">
+      
+      <!-- Coluna Esquerda: Sub-Abas do Market -->
+      <aside class="senspark-filters-sidebar">
+        <h3 class="sidebar-title">Modos do Mercado</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+          <button class="workstation-tab active" id="btnSubTabMarketSell" style="border-radius: 6px; justify-content: center;">💰 Vender Heróis</button>
+          <button class="workstation-tab" id="btnSubTabMarketCancel" style="border-radius: 6px; justify-content: center;">🛒 Resgatar do Mercado</button>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+          <h4 style="margin: 0 0 0.4rem 0; color: var(--text-primary); font-size: 0.8rem;">Dica</h4>
+          No modo **Vender**, você lista os heróis da sua carteira no marketplace.<br><br>
+          No modo **Resgatar**, o sistema varre o seu histórico de transferências na blockchain para encontrar heróis que você já colocou à venda e permite o resgate (Cancel Order).
+        </div>
+      </aside>
+
+      <!-- Coluna Direita: Dashboard de Market -->
+      <main class="workstation-main">
+        <div class="glass-box" style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0;" id="marketTitle">Vender Heróis no Mercado</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;" id="marketDesc">
+                Selecione os heróis que deseja vender. Eles serão enviados para o contrato do Marketplace.
+              </p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end;" id="marketActionArea">
+              <div>
+                <label class="slot-label" style="font-size: 0.7rem; margin-bottom: 0.2rem;">Preço por Herói (BCOIN)</label>
+                <input type="number" class="form-input compact" id="inputMarketPrice" placeholder="Ex: 10" min="0.1" step="any" style="width: 130px;">
+              </div>
+              <button class="btn btn-primary" id="btnMarketSell" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; padding: 0.5rem 1.5rem;" disabled>Vender Selecionados</button>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 1rem; align-items: center;" id="marketCancelArea" style="display: none;">
+             <button class="btn btn-secondary" id="btnMarketScan" style="padding: 0.5rem 1.5rem;">🔎 Escanear Histórico (Meus Heróis no Mercado)</button>
+          </div>
+        </div>
+
+        <div class="heroes-grid" id="marketHeroesGrid">
+          <div class="empty-state">
+            <p>Conecte a MetaMask para carregar seu inventário do Marketplace.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
     <!-- Global Console Window -->
     <div class="glass-box console-box" style="margin-top: 1.5rem;">
       <h3>Histórico & Transações</h3>
@@ -580,14 +705,19 @@
       8: "Bomb Power +2"
     };
 
+    // Core State Arrays
+    let heroes = [];
+    let massFuseQueue = [];
+    let massTransferQueue = [];
+    let stakeSelectedQueue = [];
+    let marketSelectedQueue = [];
+
     // State Variables
     let provider = null;
     let signer = null;
     let userAddress = null;
-    let heroes = [];
     
     // Mass Fusion State Variables
-    let massFuseQueue = []; // Heróis agendados para fusão ordenados pela estratégia
     let isFusing = false;
 
     // Mass Transfer State Variables
@@ -607,6 +737,25 @@
     const BHERO_S_ABI = [
       "function fusion(uint256[] calldata mainMaterials, uint256[] calldata buffMaterials) external",
       "function mint(uint256 count) external"
+    ];
+
+    const BHERO_STAKE_ABI = [
+      "function getCoinBalanceV2(address token, uint256 id) public view returns (uint256)",
+      "function getTimeStakeV2(address token, uint256 id) public view returns (uint256)",
+      "function getWithdrawFeeV2(address token, uint256 id) public view returns (uint256)",
+      "function depositV2(address token, uint256 id, uint256 amount) external",
+      "function withdrawV2(address token, uint256 id, uint256 amount) external"
+    ];
+
+    const BHERO_MARKET_ABI = [
+      "function createOrder(uint256 _tokenId, uint256 _price) external",
+      "function cancelOrder(uint256 _tokenId) external",
+      "function getOrderV2(uint256 _tokenId) public view returns (uint256 tokenDetail, address seller, uint256 price, uint256 startedAt)"
+    ];
+
+    const ERC20_ABI = [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function allowance(address owner, address spender) external view returns (uint256)"
     ];
 
     // Active Filters States (Senspark style)
@@ -647,16 +796,25 @@
     const btnTabFuse = document.getElementById("btnTabFuse");
     const btnTabTransfer = document.getElementById("btnTabTransfer");
     const btnTabMint = document.getElementById("btnTabMint");
+    const btnTabStake = document.getElementById("btnTabStake");
+    const btnTabMarket = document.getElementById("btnTabMarket");
+
     const contentWorkstationFuse = document.getElementById("contentWorkstationFuse");
     const contentWorkstationTransfer = document.getElementById("contentWorkstationTransfer");
     const contentWorkstationMint = document.getElementById("contentWorkstationMint");
+    const contentWorkstationStake = document.getElementById("contentWorkstationStake");
+    const contentWorkstationMarket = document.getElementById("contentWorkstationMarket");
     
     const fuseHeroesGrid = document.getElementById("fuseHeroesGrid");
     const transferHeroesGrid = document.getElementById("transferHeroesGrid");
+    const stakeHeroesGrid = document.getElementById("stakeHeroesGrid");
+    const marketHeroesGrid = document.getElementById("marketHeroesGrid");
 
     const addrBHeroToken = document.getElementById("addrBHeroToken");
     const addrBHeroS = document.getElementById("addrBHeroS");
     const addrBCOINToken = document.getElementById("addrBCOINToken");
+    const addrBHeroStake = document.getElementById("addrBHeroStake");
+    const addrBHeroMarket = document.getElementById("addrBHeroMarket");
 
     // Network & Env Tab DOM References
     const tabBSC = document.getElementById("tabBSC");
@@ -721,6 +879,23 @@
     const requestMintStepperStatus = document.getElementById("requestMintStepperStatus");
     const requestMintStepperBarInner = document.getElementById("requestMintStepperBarInner");
     const requestMintStepperMessage = document.getElementById("requestMintStepperMessage");
+
+    // Stake Manager DOM References
+    const inputStakeAmount = document.getElementById("inputStakeAmount");
+    const btnDepositStake = document.getElementById("btnDepositStake");
+    const stakeTotalBalance = document.getElementById("stakeTotalBalance");
+    const stakeSelectedCount = document.getElementById("stakeSelectedCount");
+
+    // Market Manager DOM References
+    const btnSubTabMarketSell = document.getElementById("btnSubTabMarketSell");
+    const btnSubTabMarketCancel = document.getElementById("btnSubTabMarketCancel");
+    const marketTitle = document.getElementById("marketTitle");
+    const marketDesc = document.getElementById("marketDesc");
+    const marketActionArea = document.getElementById("marketActionArea");
+    const marketCancelArea = document.getElementById("marketCancelArea");
+    const inputMarketPrice = document.getElementById("inputMarketPrice");
+    const btnMarketSell = document.getElementById("btnMarketSell");
+    const btnMarketScan = document.getElementById("btnMarketScan");
 
     // Update contract addresses based on network & environment tabs
     function updatePresetAddresses() {
@@ -1371,6 +1546,10 @@
 
     // Helper to get filtered heroes for a specific tab
     function getFilteredHeroes(tab) {
+      if (tab === "stake" || tab === "market") {
+        return heroes; // No local filters for stake and market yet
+      }
+
       const filters = activeFilters[tab];
       const searchInput = document.getElementById(tab === "fuse" ? "searchFuseHeroId" : "searchTransferHeroId");
       const searchVal = searchInput ? searchInput.value.trim() : "";
@@ -1433,10 +1612,14 @@
         
         const isScheduledBurn = massFuseQueue.some(q => q.id === hero.id);
         const isScheduledTransfer = massTransferQueue.some(q => q.id === hero.id);
+        const isSelectedStake = stakeSelectedQueue.some(q => q.id === hero.id);
+        const isSelectedMarket = marketSelectedQueue.some(q => q.id === hero.id);
         
         let cardClass = "hero-card";
         if (isScheduledBurn && tab === "fuse") cardClass += " scheduled-burn";
         if (isScheduledTransfer && tab === "transfer") cardClass += " scheduled-transfer";
+        if (isSelectedStake && tab === "stake") cardClass += " scheduled-transfer"; // re-use transfer style
+        if (isSelectedMarket && tab === "market") cardClass += " scheduled-transfer";
 
         const card = document.createElement("div");
         card.className = cardClass;
@@ -1450,6 +1633,8 @@
         const heroSTag = hero.isHeroS ? `<div class="hero-heros-tag">HeroS</div>` : "";
         const burnBadge = (isScheduledBurn && tab === "fuse") ? `<div class="burn-badge">🔥 QUEIMAR</div>` : "";
         const transferBadge = (isScheduledTransfer && tab === "transfer") ? `<div class="burn-badge transfer-badge">✈️ ENVIAR</div>` : "";
+        const stakeBadge = (isSelectedStake && tab === "stake") ? `<div class="burn-badge transfer-badge" style="background: rgba(0, 200, 255, 0.9);">🏦 SELECIONADO</div>` : "";
+        const marketBadge = (isSelectedMarket && tab === "market") ? `<div class="burn-badge transfer-badge" style="background: rgba(255, 150, 0, 0.9);">💰 SELECIONADO</div>` : "";
 
         card.innerHTML = `
           <div class="hero-card-header">
@@ -1460,6 +1645,8 @@
             ${heroSTag}
             ${burnBadge}
             ${transferBadge}
+            ${stakeBadge}
+            ${marketBadge}
             <svg viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="rgba(${rarityRgb}, 0.15)" stroke="${rarityColor}" stroke-width="3" />
               <path d="M35 45 Q50 35 65 45 M35 60 Q50 70 65 60" fill="none" stroke="${rarityColor}" stroke-width="4" stroke-linecap="round"/>
@@ -1490,34 +1677,48 @@
       renderGrid("fuse", fuseHeroesGrid);
       // 2. Render Transfer Grid
       renderGrid("transfer", transferHeroesGrid);
+      // 3. Render Stake Grid
+      renderGrid("stake", stakeHeroesGrid);
+      // 4. Render Market Grid
+      renderGrid("market", marketHeroesGrid);
     }
 
     // Click handler to toggle hero selection for Batch Transfer
     function handleHeroClick(hero) {
       log(`Visualizando Herói #${hero.id} (${RARITY_NAMES[hero.rarity]}) - Pow: ${hero.bombPower}, Spd: ${hero.speed}, Stm: ${hero.stamina}, Rng: ${hero.bombRange}`, "info");
       
-      // If we are on the fuse tab, clicks are only for details viewing
-      if (currentWorkstation !== "transfer") {
-        return;
-      }
-
       // Protect heroes scheduled to be burned
       if (massFuseQueue.some(q => q.id === hero.id)) {
-        log(`Herói #${hero.id} está agendado para fusão e não pode ser transferido.`, "warning");
+        log(`Herói #${hero.id} está agendado para fusão e não pode ser selecionado.`, "warning");
         return;
       }
 
-      // Toggle from transfer queue
-      const idx = massTransferQueue.findIndex(q => q.id === hero.id);
-      if (idx > -1) {
-        massTransferQueue.splice(idx, 1);
-        log(`Herói #${hero.id} removido da seleção de transferência.`, "info");
-      } else {
-        massTransferQueue.push(hero);
-        log(`Herói #${hero.id} selecionado para transferência (ficará protegido).`, "success");
+      if (currentWorkstation === "transfer") {
+        const idx = massTransferQueue.findIndex(q => q.id === hero.id);
+        if (idx > -1) {
+          massTransferQueue.splice(idx, 1);
+        } else {
+          massTransferQueue.push(hero);
+        }
+        updateMassTransferState();
+      } else if (currentWorkstation === "stake") {
+        const idx = stakeSelectedQueue.findIndex(q => q.id === hero.id);
+        if (idx > -1) {
+          stakeSelectedQueue.splice(idx, 1);
+        } else {
+          stakeSelectedQueue.push(hero);
+        }
+        updateStakeState();
+      } else if (currentWorkstation === "market") {
+        const idx = marketSelectedQueue.findIndex(q => q.id === hero.id);
+        if (idx > -1) {
+          marketSelectedQueue.splice(idx, 1);
+        } else {
+          marketSelectedQueue.push(hero);
+        }
+        updateMarketState();
       }
-      
-      updateMassTransferState();
+
       renderHeroes();
     }
 
@@ -1749,6 +1950,25 @@
       }
       
       btnMassTransfer.disabled = (count === 0 || !ethers.isAddress(dest) || isTransferring);
+    }
+
+    // Dynamic updates for stake state and UI counters
+    function updateStakeState() {
+      const count = stakeSelectedQueue.length;
+      if (stakeSelectedCount) stakeSelectedCount.textContent = count;
+      if (btnDepositStake) btnDepositStake.disabled = (count === 0);
+    }
+
+    // Dynamic updates for market state and UI counters
+    function updateMarketState() {
+      const count = marketSelectedQueue.length;
+      let price = 0;
+      if (inputMarketPrice) {
+        price = parseFloat(inputMarketPrice.value);
+      }
+      if (btnMarketSell) {
+        btnMarketSell.disabled = (count === 0 || isNaN(price) || price <= 0);
+      }
     }
 
     // Execute safeTransferFrom loop or single batch transaction via smart contract
@@ -2040,9 +2260,13 @@
       btnTabFuse.classList.add("active");
       btnTabTransfer.classList.remove("active");
       btnTabMint.classList.remove("active");
+      btnTabStake.classList.remove("active");
+      btnTabMarket.classList.remove("active");
       contentWorkstationFuse.classList.add("active");
       contentWorkstationTransfer.classList.remove("active");
       contentWorkstationMint.classList.remove("active");
+      contentWorkstationStake.classList.remove("active");
+      contentWorkstationMarket.classList.remove("active");
       currentWorkstation = "fuse";
       localStorage.setItem("bombcrypto_current_workstation", "fuse");
       renderHeroes();
@@ -2052,9 +2276,13 @@
       btnTabTransfer.classList.add("active");
       btnTabFuse.classList.remove("active");
       btnTabMint.classList.remove("active");
+      btnTabStake.classList.remove("active");
+      btnTabMarket.classList.remove("active");
       contentWorkstationTransfer.classList.add("active");
       contentWorkstationFuse.classList.remove("active");
       contentWorkstationMint.classList.remove("active");
+      contentWorkstationStake.classList.remove("active");
+      contentWorkstationMarket.classList.remove("active");
       currentWorkstation = "transfer";
       localStorage.setItem("bombcrypto_current_workstation", "transfer");
       renderHeroes();
@@ -2064,12 +2292,48 @@
       btnTabMint.classList.add("active");
       btnTabFuse.classList.remove("active");
       btnTabTransfer.classList.remove("active");
+      btnTabStake.classList.remove("active");
+      btnTabMarket.classList.remove("active");
       contentWorkstationMint.classList.add("active");
       contentWorkstationFuse.classList.remove("active");
       contentWorkstationTransfer.classList.remove("active");
+      contentWorkstationStake.classList.remove("active");
+      contentWorkstationMarket.classList.remove("active");
       currentWorkstation = "mint";
       localStorage.setItem("bombcrypto_current_workstation", "mint");
       checkPendingRequests();
+    });
+
+    btnTabStake.addEventListener("click", () => {
+      btnTabStake.classList.add("active");
+      btnTabFuse.classList.remove("active");
+      btnTabTransfer.classList.remove("active");
+      btnTabMint.classList.remove("active");
+      btnTabMarket.classList.remove("active");
+      contentWorkstationStake.classList.add("active");
+      contentWorkstationFuse.classList.remove("active");
+      contentWorkstationTransfer.classList.remove("active");
+      contentWorkstationMint.classList.remove("active");
+      contentWorkstationMarket.classList.remove("active");
+      currentWorkstation = "stake";
+      localStorage.setItem("bombcrypto_current_workstation", "stake");
+      renderHeroes();
+    });
+
+    btnTabMarket.addEventListener("click", () => {
+      btnTabMarket.classList.add("active");
+      btnTabFuse.classList.remove("active");
+      btnTabTransfer.classList.remove("active");
+      btnTabMint.classList.remove("active");
+      btnTabStake.classList.remove("active");
+      contentWorkstationMarket.classList.add("active");
+      contentWorkstationFuse.classList.remove("active");
+      contentWorkstationTransfer.classList.remove("active");
+      contentWorkstationMint.classList.remove("active");
+      contentWorkstationStake.classList.remove("active");
+      currentWorkstation = "market";
+      localStorage.setItem("bombcrypto_current_workstation", "market");
+      renderHeroes();
     });
 
     // Batch Transfer Buttons Action
@@ -2161,6 +2425,146 @@
       btnRequestMintContract.addEventListener("click", executeMintRequestContract);
     }
 
+    // Stake & Market Event Listeners
+    if (btnDepositStake) btnDepositStake.addEventListener("click", executeDepositStake);
+    if (inputMarketPrice) inputMarketPrice.addEventListener("input", updateMarketState);
+    if (btnMarketSell) btnMarketSell.addEventListener("click", executeMarketSell);
+    if (btnSubTabMarketSell) {
+      btnSubTabMarketSell.addEventListener("click", () => {
+        btnSubTabMarketSell.classList.add("active");
+        btnSubTabMarketCancel.classList.remove("active");
+        marketActionArea.style.display = "flex";
+        marketCancelArea.style.display = "none";
+        marketTitle.textContent = "Vender Heróis no Mercado";
+        marketDesc.textContent = "Selecione os heróis que deseja vender. Eles serão enviados para o contrato do Marketplace.";
+        marketSelectedQueue = [];
+        updateMarketState();
+        renderHeroes();
+      });
+    }
+    if (btnSubTabMarketCancel) {
+      btnSubTabMarketCancel.addEventListener("click", () => {
+        btnSubTabMarketCancel.classList.add("active");
+        btnSubTabMarketSell.classList.remove("active");
+        marketActionArea.style.display = "none";
+        marketCancelArea.style.display = "flex";
+        marketTitle.textContent = "Resgatar Heróis do Mercado";
+        marketDesc.textContent = "Heróis que você possui listados atualmente. (Requer varredura)";
+        marketSelectedQueue = [];
+        updateMarketState();
+        renderHeroes();
+      });
+    }
+    if (btnMarketScan) {
+      btnMarketScan.addEventListener("click", scanMarketHistory);
+    }
+
+    // Stake Logic
+    async function executeDepositStake() {
+      if (!signer) return alert("Conecte a MetaMask primeiro!");
+      const amount = parseFloat(inputStakeAmount.value);
+      if (isNaN(amount) || amount <= 0) return alert("Digite uma quantidade válida de BCOIN!");
+      
+      const count = stakeSelectedQueue.length;
+      if (count === 0) return;
+      
+      const stakeAddr = addrBHeroStake.value.trim().toLowerCase();
+      const bcoinAddr = addrBCOINToken.value.trim().toLowerCase();
+      
+      const confirmed = confirm(`Confirmar depósito de ${amount} BCOIN para ${count} herói(s)?\nTotal necessário: ${amount * count} BCOIN.\n\nA MetaMask solicitará aprovação do BCOIN caso necessário, e em seguida ${count} transações consecutivas.`);
+      if (!confirmed) return;
+      
+      try {
+        btnDepositStake.disabled = true;
+        const bcoinContract = new ethers.Contract(bcoinAddr, ERC20_ABI, signer);
+        const stakeContract = new ethers.Contract(stakeAddr, BHERO_STAKE_ABI, signer);
+        const amountWei = ethers.parseEther(amount.toString());
+        const totalAmountWei = ethers.parseEther((amount * count).toString());
+        
+        log(`Verificando autorização de BCOIN para o contrato de Stake...`, "info");
+        const allowance = await bcoinContract.allowance(userAddress, stakeAddr);
+        if (allowance < totalAmountWei) {
+          log(`Autorização insuficiente. Solicitando Approve de BCOIN...`, "warning");
+          const txApp = await bcoinContract.approve(stakeAddr, ethers.MaxUint256);
+          await txApp.wait();
+          log(`BCOIN Aprovado!`, "success");
+        }
+        
+        for (let i = 0; i < count; i++) {
+          const hero = stakeSelectedQueue[i];
+          log(`[Stake ${i+1}/${count}] Depositando ${amount} BCOIN no Herói #${hero.id}...`, "info");
+          const tx = await stakeContract.depositV2(bcoinAddr, hero.id, amountWei);
+          await tx.wait();
+          log(`[Stake ${i+1}/${count}] Depósito confirmado para Herói #${hero.id}!`, "success");
+        }
+        
+        log(`Depósito concluído em todos os ${count} heróis!`, "success");
+        stakeSelectedQueue = [];
+        updateStakeState();
+        renderHeroes();
+      } catch (err) {
+        log(`Erro no depósito de Stake: ${err.message}`, "error");
+        btnDepositStake.disabled = false;
+      }
+    }
+
+    // Market Sell Logic
+    async function executeMarketSell() {
+      if (!signer) return alert("Conecte a MetaMask primeiro!");
+      const price = parseFloat(inputMarketPrice.value);
+      if (isNaN(price) || price <= 0) return alert("Preço inválido!");
+      
+      const count = marketSelectedQueue.length;
+      if (count === 0) return;
+      
+      const marketAddr = addrBHeroMarket.value.trim().toLowerCase();
+      const tokenAddr = addrBHeroToken.value.trim().toLowerCase();
+      
+      const confirmed = confirm(`Confirmar listagem de ${count} herói(s) no mercado por ${price} BCOIN cada?\n\nA MetaMask abrirá ${count} vezes.`);
+      if (!confirmed) return;
+      
+      try {
+        btnMarketSell.disabled = true;
+        const tokenContract = new ethers.Contract(tokenAddr, BHERO_TOKEN_ABI, signer);
+        const marketContract = new ethers.Contract(marketAddr, BHERO_MARKET_ABI, signer);
+        const priceWei = ethers.parseEther(price.toString());
+        
+        log(`Verificando autorização de NFT para o Mercado...`, "info");
+        const isApproved = await tokenContract.isApprovedForAll(userAddress, marketAddr);
+        if (!isApproved) {
+          log(`Autorização NFT não encontrada. Solicitando Approve All...`, "warning");
+          const txApp = await tokenContract.setApprovalForAll(marketAddr, true);
+          await txApp.wait();
+          log(`Mercado autorizado a movimentar os heróis!`, "success");
+        }
+        
+        for (let i = 0; i < count; i++) {
+          const hero = marketSelectedQueue[i];
+          log(`[Market ${i+1}/${count}] Listando Herói #${hero.id} por ${price} BCOIN...`, "info");
+          const tx = await marketContract.createOrder(hero.id, priceWei);
+          await tx.wait();
+          log(`[Market ${i+1}/${count}] Herói #${hero.id} listado com sucesso!`, "success");
+        }
+        
+        log(`Listagem concluída para ${count} heróis!`, "success");
+        marketSelectedQueue = [];
+        updateMarketState();
+        // Remove listed heroes from current UI to reflect they left wallet
+        await loadHeroes();
+      } catch (err) {
+        log(`Erro ao listar no mercado: ${err.message}`, "error");
+        btnMarketSell.disabled = false;
+      }
+    }
+
+    // Market Cancel Logic (Scan)
+    async function scanMarketHistory() {
+      if (!signer) return alert("Conecte a MetaMask primeiro!");
+      log("Varredura de Histórico de Mercado ainda não implementada completamente. Use o BSCScan para resgatar manualmente por enquanto.", "warning");
+      // Aqui faríamos uma consulta de Transfer events pro BHeroMarket e depois checkOrderV2
+      alert("A varredura de mercado requer indexação (TheGraph / Covalent) ou leitura massiva de blocos. Como o BHeroMarket não possui um endpoint de 'getOrderByOwner', não é possível listar instantaneamente. Estamos trabalhando numa solução.");
+    }
+
     // Persistir e Carregar estados salvos
     function applySavedStates() {
       // 1. Carregar Rede
@@ -2191,15 +2595,19 @@
 
       // 3. Carregar Aba da Estação de Trabalho
       const savedWorkstation = localStorage.getItem("bombcrypto_current_workstation");
-      if (savedWorkstation && (savedWorkstation === "fuse" || savedWorkstation === "transfer" || savedWorkstation === "mint")) {
+      if (savedWorkstation && ["fuse", "transfer", "mint", "stake", "market"].includes(savedWorkstation)) {
         currentWorkstation = savedWorkstation;
         // Reset classes
         btnTabFuse.classList.remove("active");
         btnTabTransfer.classList.remove("active");
         btnTabMint.classList.remove("active");
+        btnTabStake.classList.remove("active");
+        btnTabMarket.classList.remove("active");
         contentWorkstationFuse.classList.remove("active");
         contentWorkstationTransfer.classList.remove("active");
         contentWorkstationMint.classList.remove("active");
+        contentWorkstationStake.classList.remove("active");
+        contentWorkstationMarket.classList.remove("active");
 
         if (currentWorkstation === "fuse") {
           btnTabFuse.classList.add("active");
@@ -2210,6 +2618,12 @@
         } else if (currentWorkstation === "mint") {
           btnTabMint.classList.add("active");
           contentWorkstationMint.classList.add("active");
+        } else if (currentWorkstation === "stake") {
+          btnTabStake.classList.add("active");
+          contentWorkstationStake.classList.add("active");
+        } else if (currentWorkstation === "market") {
+          btnTabMarket.classList.add("active");
+          contentWorkstationMarket.classList.add("active");
         }
       }
       
