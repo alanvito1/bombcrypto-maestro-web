@@ -58,6 +58,11 @@
         </div>
 
         <div>
+          <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato SEN (ERC-20)</label>
+          <input type="text" class="form-input compact" id="addrSENToken" value="0xb43ac9a81eda5a5b36839d5b6fc65606815361b0" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+        </div>
+
+        <div>
           <label class="slot-label" style="margin-bottom: 0.3rem;">Contrato BatchTransfer</label>
           <input type="text" class="form-input compact" id="addrBatchTransfer" value="" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);" placeholder="Contrato Multi-Transferência">
         </div>
@@ -600,10 +605,17 @@
               </p>
             </div>
             
-            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
-              <div>
-                <label class="slot-label" style="font-size: 0.7rem; margin-bottom: 0.2rem;">Quantidade (BCOIN)</label>
-                <input type="number" class="form-input compact" id="inputStakeAmount" placeholder="Ex: 50" min="1" step="any" style="width: 120px;">
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end; min-width: 320px;">
+              <div style="flex: 1;">
+                <label class="slot-label" style="font-size: 0.75rem; margin-bottom: 0.2rem;">Moeda</label>
+                <select class="form-select compact" id="stakeCurrency" style="padding: 0.35rem 0.5rem; font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                  <option value="bcoin" selected>BCOIN</option>
+                  <option value="sen">SEN</option>
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <label class="slot-label" style="font-size: 0.75rem; margin-bottom: 0.2rem;">Qtd por Herói</label>
+                <input type="number" class="form-input compact" id="inputStakeAmount" placeholder="Ex: 50" min="0" step="0.1" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0.5rem;">
               </div>
               <button class="btn btn-primary" id="btnDepositStake" style="background: linear-gradient(135deg, #00ffd8 0%, #0099ff 100%); border-color: #00ffd8; color: #040814; padding: 0.5rem 1.5rem;" disabled>Depositar nos Selecionados</button>
             </div>
@@ -875,30 +887,10 @@
 
     // Active Filters States (Senspark style)
     const activeFilters = {
-      fuse: {
-        heroType: "all",
-        rarities: [], // list of rarities [0, 1...]
-        lvlMin: 1,
-        lvlMax: 5,
-        power: 0,
-        speed: 0,
-        stamina: 0,
-        bombNum: 0,
-        range: 0,
-        abilities: [] // list of active abilities [1, 2...]
-      },
-      transfer: {
-        heroType: "all",
-        rarities: [],
-        lvlMin: 1,
-        lvlMax: 5,
-        power: 0,
-        speed: 0,
-        stamina: 0,
-        bombNum: 0,
-        range: 0,
-        abilities: []
-      }
+      fuse: { heroType: "all", rarities: [], lvlMin: 1, lvlMax: 20, power: 0, speed: 0, stamina: 0, bombNum: 0, range: 0, abilities: [] },
+      transfer: { heroType: "all", rarities: [], lvlMin: 1, lvlMax: 20, power: 0, speed: 0, stamina: 0, bombNum: 0, range: 0, abilities: [] },
+      stake: { heroType: "all", rarities: [], lvlMin: 1, lvlMax: 20, power: 0, speed: 0, stamina: 0, bombNum: 0, range: 0, abilities: [] },
+      market: { heroType: "all", rarities: [], lvlMin: 1, lvlMax: 20, power: 0, speed: 0, stamina: 0, bombNum: 0, range: 0, abilities: [] }
     };
 
     // DOM References
@@ -1022,13 +1014,16 @@
         if (addrBCOINToken && preset.bcoin) {
           addrBCOINToken.value = preset.bcoin;
         }
+        if (addrSENToken && preset.sen) {
+          addrSENToken.value = preset.sen;
+        }
         if (addrBHeroStake && preset.stake) {
           addrBHeroStake.value = preset.stake;
         }
         if (addrBHeroMarket && preset.market) {
           addrBHeroMarket.value = preset.market;
         }
-        log(`Carregando preset para ${preset.name}: BHeroToken = ${preset.token}, BHeroS = ${preset.heroS}, Stake = ${preset.stake || 'N/A'}, Market = ${preset.market || 'N/A'}`, "info");
+        log(`Carregando preset para ${preset.name}: BCOIN = ${preset.bcoin || 'N/A'}, SEN = ${preset.sen || 'N/A'}`, "info");
       }
     }
 
@@ -1824,6 +1819,7 @@
           stakeSelectedQueue.splice(idx, 1);
         } else {
           stakeSelectedQueue.push(hero);
+          fetchStakeBalanceForHero(hero.id);
         }
         updateStakeState();
       } else if (currentWorkstation === "market") {
@@ -2580,37 +2576,40 @@
     async function executeDepositStake() {
       if (!signer) return alert("Conecte a MetaMask primeiro!");
       const amount = parseFloat(inputStakeAmount.value);
-      if (isNaN(amount) || amount <= 0) return alert("Digite uma quantidade válida de BCOIN!");
+      if (isNaN(amount) || amount <= 0) return alert("Digite uma quantidade válida para stake!");
       
       const count = stakeSelectedQueue.length;
       if (count === 0) return;
       
       const stakeAddr = addrBHeroStake.value.trim().toLowerCase();
-      const bcoinAddr = addrBCOINToken.value.trim().toLowerCase();
       
-      const confirmed = confirm(`Confirmar depósito de ${amount} BCOIN para ${count} herói(s)?\nTotal necessário: ${amount * count} BCOIN.\n\nA MetaMask solicitará aprovação do BCOIN caso necessário, e em seguida ${count} transações consecutivas.`);
+      const currency = document.getElementById("stakeCurrency").value;
+      const tokenAddr = currency === "sen" ? addrSENToken.value.trim().toLowerCase() : addrBCOINToken.value.trim().toLowerCase();
+      const tokenSymbol = currency.toUpperCase();
+      
+      const confirmed = confirm(`Confirmar depósito de ${amount} ${tokenSymbol} para ${count} herói(s)?\nTotal necessário: ${amount * count} ${tokenSymbol}.\n\nA MetaMask solicitará aprovação do ${tokenSymbol} caso necessário, e em seguida ${count} transações consecutivas.`);
       if (!confirmed) return;
       
       try {
         btnDepositStake.disabled = true;
-        const bcoinContract = new ethers.Contract(bcoinAddr, ERC20_ABI, signer);
+        const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
         const stakeContract = new ethers.Contract(stakeAddr, BHERO_STAKE_ABI, signer);
         const amountWei = ethers.parseEther(amount.toString());
         const totalAmountWei = ethers.parseEther((amount * count).toString());
         
-        log(`Verificando autorização de BCOIN para o contrato de Stake...`, "info");
-        const allowance = await bcoinContract.allowance(userAddress, stakeAddr);
+        log(`Verificando autorização de ${tokenSymbol} para o contrato de Stake...`, "info");
+        const allowance = await tokenContract.allowance(userAddress, stakeAddr);
         if (allowance < totalAmountWei) {
-          log(`Autorização insuficiente. Solicitando Approve de BCOIN...`, "warning");
-          const txApp = await bcoinContract.approve(stakeAddr, ethers.MaxUint256);
+          log(`Autorização insuficiente. Solicitando Approve de ${tokenSymbol}...`, "warning");
+          const txApp = await tokenContract.approve(stakeAddr, ethers.MaxUint256);
           await txApp.wait();
-          log(`BCOIN Aprovado!`, "success");
+          log(`${tokenSymbol} Aprovado!`, "success");
         }
         
         for (let i = 0; i < count; i++) {
           const hero = stakeSelectedQueue[i];
-          log(`[Stake ${i+1}/${count}] Depositando ${amount} BCOIN no Herói #${hero.id}...`, "info");
-          const tx = await stakeContract.depositV2(bcoinAddr, hero.id, amountWei);
+          log(`[Stake ${i+1}/${count}] Depositando ${amount} ${tokenSymbol} no Herói #${hero.id}...`, "info");
+          const tx = await stakeContract.depositV2(tokenAddr, hero.id, amountWei);
           await tx.wait();
           log(`[Stake ${i+1}/${count}] Depósito confirmado para Herói #${hero.id}!`, "success");
         }
@@ -2622,6 +2621,34 @@
       } catch (err) {
         log(`Erro no depósito de Stake: ${err.message}`, "error");
         btnDepositStake.disabled = false;
+      }
+    }
+
+    async function fetchStakeBalanceForHero(heroId) {
+      if (!provider) return;
+      try {
+        const stakeAddr = addrBHeroStake.value.trim().toLowerCase();
+        const bcoinAddr = addrBCOINToken.value.trim().toLowerCase();
+        const senAddr = addrSENToken.value.trim().toLowerCase();
+        const stakeContract = new ethers.Contract(stakeAddr, BHERO_STAKE_ABI, provider);
+        
+        let msg = ``;
+        if (ethers.isAddress(bcoinAddr)) {
+          const bBal = await stakeContract.getCoinBalanceV2(bcoinAddr, heroId);
+          if (bBal > 0n) msg += `${ethers.formatEther(bBal)} BCOIN `;
+        }
+        if (ethers.isAddress(senAddr)) {
+          const sBal = await stakeContract.getCoinBalanceV2(senAddr, heroId);
+          if (sBal > 0n) msg += `${ethers.formatEther(sBal)} SEN`;
+        }
+        
+        if (msg !== ``) {
+           log(`Herói #${heroId} possui em Stake: ${msg}`, "success");
+        } else {
+           log(`Herói #${heroId} não possui BCOIN ou SEN em Stake.`, "info");
+        }
+      } catch (err) {
+        console.error("Erro ao checar saldo de stake:", err);
       }
     }
 
